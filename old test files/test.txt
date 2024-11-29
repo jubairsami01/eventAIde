@@ -1,0 +1,2 @@
+hello, this is a test
+mkdir -p {app/{routes,services,templates/{management,customer,ease},static/{css,js,images}},migrations,tests} && touch EventAIde/{app/{__init__.py,models.py,routes/{__init__.py,management_routes.py,customer_routes.py,ease_routes.py},services/{__init__.py,ai_services.py,analytics_services.py,user_services.py},templates/{base.html},static/css/styles.css,static/js/main.js},tests/{test_management.py,test_customer.py,test_ease.py},requirements.txt,config.py,init_db.py,run.py,README.md,.env,.gitignore}
