@@ -12,9 +12,10 @@ def create_app():
     mysql.init_app(app)
 
     # Register Blueprints
-    from app.routes import management_routes, customer_routes, ease_routes
+    from app.routes import management_routes, customer_routes, ease_routes, home_routes
     app.register_blueprint(management_routes.bp)
     app.register_blueprint(customer_routes.bp)
     app.register_blueprint(ease_routes.bp)
-
+    app.register_blueprint(home_routes.bp)
+    
     return app

@@ -1,14 +1,17 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from app.models import get_all_events, register_user, get_event_details
+from app.models import get_all_events, register_user, get_event_details, test
 from app.services.ai_services import generate_directions
+
 
 bp = Blueprint('customer', __name__, url_prefix='/customer')
 
 # Customer Dashboard
 @bp.route('/')
 def dashboard():
-    events = get_all_events()
-    return render_template('customer/dashboard.html', events=events)
+    #events = get_all_events()
+    testt = test()
+    print(testt)
+    return render_template('customer/dashboard.html', testt = testt) #, events=events
 
 # User Registration
 @bp.route('/register', methods=['GET', 'POST'])

@@ -3,8 +3,8 @@ import MySQLdb
 def create_tables():
     connection = MySQLdb.connect(
         host="localhost",
-        user="your_mysql_user",
-        passwd="your_mysql_password"
+        user="root",
+        password=""
     )
     cursor = connection.cursor()
 
