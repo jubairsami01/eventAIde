@@ -25,9 +25,13 @@ def login_user(email, password):
     cursor.execute("SELECT * FROM Users WHERE email = %s", (email,))
     user = cursor.fetchone()
     cursor.close()
+    if not user:
+        return "User not found"
+    if not check_password_hash(user['password'], password):
+        return "Wrong Password"
     if user and check_password_hash(user['password'], password):
         return user
-    return None
+    
 
 
 def get_all_events():

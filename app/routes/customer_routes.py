@@ -1,7 +1,6 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
-from app.models import get_all_events, register_user, get_event_details, test
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from app.models import get_all_events, register_user, get_event_details, test, login_user
 from app.services.ai_services import generate_directions
-
 
 bp = Blueprint('customer', __name__, url_prefix='/customer')
 
@@ -18,16 +17,36 @@ def register():
             flash('User already registered. Please try with a different email/login.')
             return redirect(url_for('customer.register'))
         flash('Registration successful! Please log in.')
-        return redirect(url_for('customer.dashboard'))
+        return redirect(url_for('customer.login'))
     return render_template('customer/register.html')
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
+    if 'user' in session:
+        return redirect(url_for('customer.dashboard'))
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        # Implement login logic here
+        user = login_user(email, password)
+        if user == "User not found":
+            flash('User not found. Please register.')
+            return redirect(url_for('customer.register'))
+        if user == "Wrong Password":
+            flash('Wrong Password. Please try again.')
+            return redirect(url_for('customer.login'))
+        session['user'] = user
+        session['role'] = user['role']
+        session['name'] = user['name']
+        session['email'] = user['email']
+        session['id'] = user['id']
+        flash('Login successful!')
+        return redirect(url_for('customer.dashboard'))
     return render_template('customer/login.html')
+
+@bp.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('customer.login'))
 
 
 # Customer Dashboard
