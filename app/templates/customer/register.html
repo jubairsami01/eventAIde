@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Register to eventAIde{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <h2>Register</h2>
+            <form action="{{ url_for('customer.register') }}" method="post" id="registerForm">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+                <div class="form-group mt-2">
+                    <label for="email">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+                <div class="form-group mt-2">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <div class="form-group mt-2">
+                    <label for="confirm_password">Confirm Password</label>
+                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Register</button>
+            </form>
+            
+    </div>
+</div>
+
+<script>
+    const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
+    const appendAlert = (message, type) => {
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = [
+            `<div class="alert alert-${type} alert-dismissible" role="alert">`,
+            `   <div>${message}</div>`,
+            '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
+            '</div>'
+        ].join('');
+
+        alertPlaceholder.append(wrapper);
+    };
+
+    const alertTrigger = document.getElementById('liveAlertBtn');
+    if (alertTrigger) {
+        alertTrigger.addEventListener('click', () => {
+            appendAlert('Nice, you triggered this alert message!', 'danger');
+        });
+    }
+
+    document.getElementById('registerForm').addEventListener('submit', function(event) {
+        let password = document.getElementById('password').value;
+        let confirmPassword = document.getElementById('confirm_password').value;
+
+        if (password !== confirmPassword) {
+            event.preventDefault();
+            appendAlert('Passwords do not match.', 'danger');
+        }
+    });
+</script>
+{% endblock %}
