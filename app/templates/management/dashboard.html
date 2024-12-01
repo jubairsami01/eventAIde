@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}login to eventAIde{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row"></div>
+        {% for event in events %}
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">{{ event.name }}</h5>
+                    <p class="card-text">{{ event.description }}</p>
+                    <a href="{{ url_for('management.edit_event', event_id=event.id) }}" class="btn btn-primary">Edit Event</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+{% endblock %}

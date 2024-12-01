@@ -23,7 +23,7 @@ CREATE TABLE Events (
     end_date DATETIME NOT NULL,
     created_by INT NOT NULL,
     status ENUM('draft', 'ongoing', 'completed') NOT NULL DEFAULT 'draft',
-    visibility ENUM('public', 'private') NOT NULL DEFAULT 'public',
+    visibility ENUM('public', 'private') NOT NULL DEFAULT 'private',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (created_by) REFERENCES Users(user_id)

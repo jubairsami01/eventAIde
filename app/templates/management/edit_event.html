@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}login to eventAIde{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <h2>Edit & Publish Event</h2>
+            <form action="{{ url_for('management.draft_event') }}" method="post" id="draftEventForm">
+                <div class="form-group">
+                    <label for="name">Event Name</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+                <div class="form-group mt-2">
+                    <label for="description">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                </div>
+                <div class="form-group mt-2">
+                    <label for="start_time">Start Time</label>
+                    <input type="datetime-local" class="form-control" id="start_time" name="start_time" required>
+                </div>
+                <div class="form-group mt-2">
+                    <label for="end_time">End Time</label>
+                    <input type="datetime-local" class="form-control" id="end_time" name="end_time" required>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Draft Event</button>
+            </form>
+            
+    </div>
+</div>
+
+
+{% endblock %}

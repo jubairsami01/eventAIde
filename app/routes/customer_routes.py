@@ -20,6 +20,7 @@ def register():
         return redirect(url_for('customer.login'))
     return render_template('customer/register.html')
 
+# User Login
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
     if 'user' in session:
@@ -38,11 +39,12 @@ def login():
         session['role'] = user['role']
         session['name'] = user['name']
         session['email'] = user['email']
-        session['id'] = user['id']
+        session['user_id'] = user['user_id']
         flash('Login successful!')
         return redirect(url_for('customer.dashboard'))
     return render_template('customer/login.html')
 
+# User Logout
 @bp.route('/logout')
 def logout():
     session.clear()

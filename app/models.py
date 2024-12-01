@@ -33,6 +33,22 @@ def login_user(email, password):
         return user
     
 
+def create_event_draft(name, description, start_date, end_date, created_by):
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "INSERT INTO Events (name, description, start_date, end_date, created_by) VALUES (%s, %s, %s, %s, %s)",
+        (name, description, start_date, end_date, created_by),
+    )
+    mysql.connection.commit()
+    cursor.close()
+
+def get_users_events(user_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM Events WHERE created_by = %s", (user_id,))
+    events = cursor.fetchall()
+    cursor.close()
+    return events
+
 
 def get_all_events():
     """Retrieve all events from the database."""
@@ -42,15 +58,6 @@ def get_all_events():
     cursor.close()
     return events
 
-def create_event(name, venue, date):
-    """Insert a new event into the database."""
-    cursor = mysql.connection.cursor()
-    cursor.execute(
-        "INSERT INTO events (name, venue, date) VALUES (%s, %s, %s)",
-        (name, venue, date),
-    )
-    mysql.connection.commit()
-    cursor.close()
 
 def get_event_details(event_id):
     """Retrieve details for a specific event."""
