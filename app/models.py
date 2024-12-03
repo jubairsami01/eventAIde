@@ -40,6 +40,8 @@ def create_event_draft(name, description, start_date, end_date, created_by, last
         (name, description, start_date, end_date, created_by, last_updated_by),
     )
     mysql.connection.commit()
+    cursor.execute("UPDATE Users SET role = 'both' WHERE user_id = %s", (created_by,))
+    mysql.connection.commit()
     cursor.close()
 
 def update_event_draft(event_id, name, description, start_date, end_date, last_updated_by):
@@ -59,16 +61,23 @@ def get_event_draft(event_id):
     cursor.close()
     return event
 
-def add_cohost(event_id, email, added_by):
+def add_cohost_db(event_id, email, added_by):
     cursor = mysql.connection.cursor()
     cursor.execute("SELECT user_id FROM Users WHERE email = %s", (email,))
     cohost = cursor.fetchone()
+
+    cursor.execute("SELECT * FROM CoHosts WHERE event_id = %s and user_id = %s", (event_id, cohost['user_id']))
+    temp = cursor.fetchone()
+    if temp:
+        cursor.close()
+        return "Cohost already added!"    
+    #print(cohost)
     if not cohost:
         cursor.close()
-        return "User not found!"
+        return "User not found! Please input a registered user's email."
     cursor.execute(
         "INSERT INTO CoHosts (event_id, user_id, added_by) VALUES (%s, %s, %s)",
-        (event_id, cohost['user_id'], added_by), #might be error here
+        (event_id, cohost['user_id'], added_by), #might be error here, no error found
     )
     mysql.connection.commit()
     cursor.close()
@@ -84,7 +93,7 @@ def get_cohosts(event_id):
     cursor.close()
     return cohosts
 
-def remove_cohost(event_id, email):
+def remove_cohost_db(event_id, email):
     cursor = mysql.connection.cursor()
     cursor.execute("SELECT user_id FROM Users WHERE email = %s", (email,))
     cohost = cursor.fetchone()
@@ -150,8 +159,19 @@ def get_all_events():
     cursor.close()
     return events
 
+def get_user_by_id(user_id):
+    """Retrieve a user by their unique ID."""
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT user_id, name, email, role FROM Users WHERE user_id = %s", (user_id,))
+    user = cursor.fetchone()
+    cursor.close()
+    return user
 
-
+def update_user_role(user_id, role):
+    cursor = mysql.connection.cursor()
+    cursor.execute("UPDATE Users SET role = %s WHERE user_id = %s", (role, user_id))
+    mysql.connection.commit()
+    cursor.close()
 
 def test():
     cursor = mysql.connection.cursor()

@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from app.models import get_all_events, create_event_draft, get_users_events, get_event_draft, update_event_draft
+from app.models import get_all_events, create_event_draft, get_users_events, get_event_draft, update_event_draft, add_cohost_db, get_cohosts, remove_cohost_db, get_user_by_id
 #from app.models import get_event_by_id, update_event
 
 bp = Blueprint('management', __name__, url_prefix='/management')
@@ -31,6 +31,9 @@ def edit_event(event_id):
         return redirect(url_for('customer.login'))
     drafted_event = get_event_draft(event_id)
     #print(drafted_event)
+    cohosts = get_cohosts(event_id)
+    last_updated_by = get_user_by_id(drafted_event['last_updated_by'])
+    
     if request.method == 'POST':
         name = request.form['name']
         description = request.form['description']
@@ -39,7 +42,24 @@ def edit_event(event_id):
         update_event_draft(event_id, name, description, start_time, end_time, session['user_id'])
         flash('Event updated successfully!')
         return redirect(url_for('management.edit_event', event_id=event_id))
-    return render_template('management/edit_event.html', drafted_event=drafted_event)
+    return render_template('management/edit_event.html', drafted_event=drafted_event, cohosts=cohosts, last_updated_by=last_updated_by)
+
+@bp.route('/add_cohost/<event_id>', methods=['GET', 'POST'])
+def add_cohost(event_id):
+    if 'user_id' not in session:
+        flash('Please log in to add a cohost.')
+        return redirect(url_for('customer.login'))
+    if request.method == 'POST':
+        email = request.form['cohost_email']
+        temp = add_cohost_db(event_id, email, session['user_id'])
+        flash(temp)
+    return redirect(url_for('management.edit_event', event_id=event_id))
+
+@bp.route('/remove_cohost/<event_id>/<email>')
+def remove_cohost(event_id, email):
+    temp = remove_cohost_db(event_id, email)
+    flash(temp)
+    return redirect(url_for('management.edit_event', event_id=event_id))
 
 
 #analyze from the follwoing
