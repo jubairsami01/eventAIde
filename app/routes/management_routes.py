@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from app.models import get_all_events, create_event_draft, get_users_events
-from app.models import get_event_by_id, update_event
+from app.models import get_all_events, create_event_draft, get_users_events, get_event_draft, update_event_draft
+#from app.models import get_event_by_id, update_event
 
 bp = Blueprint('management', __name__, url_prefix='/management')
 
@@ -19,7 +19,7 @@ def draft_event():
         description = request.form['description']
         start_time = request.form['start_time']
         end_time = request.form['end_time']
-        create_event_draft(name, description, start_time, end_time, session['user_id'])
+        create_event_draft(name, description, start_time, end_time, session['user_id'], session['user_id'])
         flash('Event drafted successfully! Now add more information to publish it from the management dashboard.')
         return redirect(url_for('management.dashboard'))
     return render_template('management/draft_event.html')
@@ -29,7 +29,21 @@ def edit_event(event_id):
     if 'user_id' not in session:
         flash('Please log in to edit an event.')
         return redirect(url_for('customer.login'))
+    drafted_event = get_event_draft(event_id)
+    #print(drafted_event)
+    if request.method == 'POST':
+        name = request.form['name']
+        description = request.form['description']
+        start_time = request.form['start_time']
+        end_time = request.form['end_time']
+        update_event_draft(event_id, name, description, start_time, end_time, session['user_id'])
+        flash('Event updated successfully!')
+        return redirect(url_for('management.edit_event', event_id=event_id))
+    return render_template('management/edit_event.html', drafted_event=drafted_event)
+
+
 #analyze from the follwoing
+"""
     event = get_event_by_id(event_id)
     if event is None:
         flash('Event not found.')
@@ -47,3 +61,4 @@ def edit_event(event_id):
 
     return render_template('management/edit_event.html', event=event)
     return render_template('management/edit_event.html')
+"""

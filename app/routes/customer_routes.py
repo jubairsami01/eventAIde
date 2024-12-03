@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from app.models import get_all_events, register_user, get_event_details, test, login_user
+from app.models import get_all_events, register_user, test, login_user
 from app.services.ai_services import generate_directions
 
 bp = Blueprint('customer', __name__, url_prefix='/customer')
@@ -41,7 +41,7 @@ def login():
         session['email'] = user['email']
         session['user_id'] = user['user_id']
         flash('Login successful!')
-        return redirect(url_for('customer.dashboard'))
+        return redirect(url_for('home.home'))
     return render_template('customer/login.html')
 
 # User Logout
@@ -60,11 +60,7 @@ def dashboard():
     return render_template('customer/dashboard.html', testt = testt) #, events=events
 
 
-# Event Details
-@bp.route('/event/<int:event_id>')
-def event_details(event_id):
-    event = get_event_details(event_id)
-    return render_template('customer/event_details.html', event=event)
+
 
 # Live Chat with LLM Assistance
 @bp.route('/chat', methods=['POST'])
