@@ -15,7 +15,41 @@ show tables;
 | testsample             |
 +------------------------+
 
-describe describe Events;
+describe Analytics;
++--------------+--------------+------+-----+-------------------+-------------------+
+| Field        | Type         | Null | Key | Default           | Extra             |
++--------------+--------------+------+-----+-------------------+-------------------+
+| analytics_id | int          | NO   | PRI | NULL              | auto_increment    |
+| event_id     | int          | NO   | MUL | NULL              |                   |
+| metric       | varchar(255) | NO   |     | NULL              |                   |
+| value        | float        | YES  |     | NULL              |                   |
+| recorded_at  | datetime     | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
++--------------+--------------+------+-----+-------------------+-------------------+
+
+describe CoHosts;
++-------------+-----------+------+-----+-------------------+-------------------+
+| Field       | Type      | Null | Key | Default           | Extra             |
++-------------+-----------+------+-----+-------------------+-------------------+
+| cohost_id   | int       | NO   | PRI | NULL              | auto_increment    |
+| event_id    | int       | NO   | MUL | NULL              |                   |
+| user_id     | int       | NO   | MUL | NULL              |                   |
+| assigned_at | timestamp | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
+| added_by    | int       | YES  | MUL | NULL              |                   |
++-------------+-----------+------+-----+-------------------+-------------------+
+
+describe Event_Venue;
++--------------------+-----------+------+-----+-------------------+-----------------------------------------------+
+| Field              | Type      | Null | Key | Default           | Extra                                         |
++--------------------+-----------+------+-----+-------------------+-----------------------------------------------+
+| event_venue_id     | int       | NO   | PRI | NULL              | auto_increment                                |
+| event_id           | int       | NO   | MUL | NULL              |                                               |
+| venue_id           | int       | NO   | MUL | NULL              |                                               |
+| customized_details | json      | YES  |     | NULL              |                                               |
+| created_at         | timestamp | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED                             |
+| updated_at         | timestamp | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED on update CURRENT_TIMESTAMP |
++--------------------+-----------+------+-----+-------------------+-----------------------------------------------+
+
+describe Events;
 +-----------------+-------------------------------------+------+-----+-------------------+-----------------------------------------------+
 | Field           | Type                                | Null | Key | Default           | Extra                                         |
 +-----------------+-------------------------------------+------+-----+-------------------+-----------------------------------------------+
@@ -33,30 +67,28 @@ describe describe Events;
 | last_updated_by | int                                 | YES  | MUL | NULL              |                                               |
 +-----------------+-------------------------------------+------+-----+-------------------+-----------------------------------------------+
 
-describe Venues;
-+---------------+--------------+------+-----+-------------------+-----------------------------------------------+
-| Field         | Type         | Null | Key | Default           | Extra                                         |
-+---------------+--------------+------+-----+-------------------+-----------------------------------------------+
-| venue_id      | int          | NO   | PRI | NULL              | auto_increment                                |
-| name          | varchar(255) | NO   |     | NULL              |                                               |
-| address       | text         | NO   |     | NULL              |                                               |
-| details_json  | json         | YES  |     | NULL              |                                               |
-| created_at    | timestamp    | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED                             |
-| updated_at    | timestamp    | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED on update CURRENT_TIMESTAMP |
-| location_data | varchar(255) | YES  |     | NULL              |                                               |
-+---------------+--------------+------+-----+-------------------+-----------------------------------------------+
+describe Notifications;
++-----------------+-----------+------+-----+-------------------+-------------------+
+| Field           | Type      | Null | Key | Default           | Extra             |
++-----------------+-----------+------+-----+-------------------+-------------------+
+| notification_id | int       | NO   | PRI | NULL              | auto_increment    |
+| user_id         | int       | NO   | MUL | NULL              |                   |
+| event_id        | int       | YES  | MUL | NULL              |                   |
+| message         | text      | NO   |     | NULL              |                   |
+| sent_at         | timestamp | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
++-----------------+-----------+------+-----+-------------------+-------------------+
 
-describe Event_Venue;
-+--------------------+-----------+------+-----+-------------------+-----------------------------------------------+
-| Field              | Type      | Null | Key | Default           | Extra                                         |
-+--------------------+-----------+------+-----+-------------------+-----------------------------------------------+
-| event_venue_id     | int       | NO   | PRI | NULL              | auto_increment                                |
-| event_id           | int       | NO   | MUL | NULL              |                                               |
-| venue_id           | int       | NO   | MUL | NULL              |                                               |
-| customized_details | json      | YES  |     | NULL              |                                               |
-| created_at         | timestamp | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED                             |
-| updated_at         | timestamp | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED on update CURRENT_TIMESTAMP |
-+--------------------+-----------+------+-----+-------------------+-----------------------------------------------+
+describe Registrations;
++-----------------+-----------------------------------------+------+-----+-------------------+-------------------+
+| Field           | Type                                    | Null | Key | Default           | Extra             |
++-----------------+-----------------------------------------+------+-----+-------------------+-------------------+
+| registration_id | int                                     | NO   | PRI | NULL              | auto_increment    |
+| user_id         | int                                     | NO   | MUL | NULL              |                   |
+| event_id        | int                                     | NO   | MUL | NULL              |                   |
+| session_id      | int                                     | YES  | MUL | NULL              |                   |
+| status          | enum('pending','confirmed','cancelled') | NO   |     | pending           |                   |
+| registered_at   | timestamp                               | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
++-----------------+-----------------------------------------+------+-----+-------------------+-------------------+
 
 describe Sessions;
 +----------------+--------------+------+-----+-------------------+-----------------------------------------------+
@@ -74,7 +106,19 @@ describe Sessions;
 | updated_at     | timestamp    | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED on update CURRENT_TIMESTAMP |
 +----------------+--------------+------+-----+-------------------+-----------------------------------------------+
 
-describe Users;
+describe Social_Media_Shares;
++-----------+-------------------------+------+-----+-------------------+-------------------+
+| Field     | Type                    | Null | Key | Default           | Extra             |
++-----------+-------------------------+------+-----+-------------------+-------------------+
+| share_id  | int                     | NO   | PRI | NULL              | auto_increment    |
+| user_id   | int                     | YES  | MUL | NULL              |                   |
+| event_id  | int                     | NO   | MUL | NULL              |                   |
+| platform  | varchar(50)             | YES  |     | NULL              |                   |
+| action    | enum('shared','copied') | NO   |     | NULL              |                   |
+| timestamp | timestamp               | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
++-----------+-------------------------+------+-----+-------------------+-------------------+
+
+Describe Users;
 +-------------+--------------------------------+------+-----+-------------------+-------------------+
 | Field       | Type                           | Null | Key | Default           | Extra             |
 +-------------+--------------------------------+------+-----+-------------------+-------------------+
@@ -87,13 +131,27 @@ describe Users;
 | created_at  | timestamp                      | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
 +-------------+--------------------------------+------+-----+-------------------+-------------------+
 
-describe CoHosts;
-+-------------+-----------+------+-----+-------------------+-------------------+
-| Field       | Type      | Null | Key | Default           | Extra             |
-+-------------+-----------+------+-----+-------------------+-------------------+
-| cohost_id   | int       | NO   | PRI | NULL              | auto_increment    |
-| event_id    | int       | NO   | MUL | NULL              |                   |
-| user_id     | int       | NO   | MUL | NULL              |                   |
-| assigned_at | timestamp | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
-| added_by    | int       | YES  | MUL | NULL              |                   |
-+-------------+-----------+------+-----+-------------------+-------------------+
+describe Venues;
++---------------+--------------+------+-----+-------------------+-----------------------------------------------+
+| Field         | Type         | Null | Key | Default           | Extra                                         |
++---------------+--------------+------+-----+-------------------+-----------------------------------------------+
+| venue_id      | int          | NO   | PRI | NULL              | auto_increment                                |
+| name          | varchar(255) | NO   |     | NULL              |                                               |
+| address       | text         | NO   |     | NULL              |                                               |
+| details_json  | json         | YES  |     | NULL              |                                               |
+| created_at    | timestamp    | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED                             |
+| updated_at    | timestamp    | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED on update CURRENT_TIMESTAMP |
+| location_data | varchar(255) | YES  |     | NULL              |                                               |
++---------------+--------------+------+-----+-------------------+-----------------------------------------------+
+
+describe testsample;
++-------+--------------+------+-----+---------+----------------+
+| Field | Type         | Null | Key | Default | Extra          |
++-------+--------------+------+-----+---------+----------------+
+| id    | int          | NO   | PRI | NULL    | auto_increment |
+| name  | varchar(255) | NO   |     | NULL    |                |
+| email | varchar(255) | NO   |     | NULL    |                |
++-------+--------------+------+-----+---------+----------------+
+
+
+

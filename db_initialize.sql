@@ -2,7 +2,7 @@
 -- CREATE DATABASE EventAIde;
 -- USE EventAIde;
 
--- 2. Users Table
+
 CREATE TABLE Users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE Users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 1. Events Table
+
 CREATE TABLE Events (
     event_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE Events (
 
 
 
--- 3. Co-Hosts Table
+
 CREATE TABLE CoHosts (
     cohost_id INT AUTO_INCREMENT PRIMARY KEY,
     event_id INT NOT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE CoHosts (
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
 
--- 9. Venues Table
+
 CREATE TABLE Venues (
     venue_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE Venues (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Event-Venue Table
+
 CREATE TABLE Event_Venue (
     event_venue_id INT AUTO_INCREMENT PRIMARY KEY,
     event_id INT NOT NULL,
@@ -64,7 +64,7 @@ CREATE TABLE Event_Venue (
 );
 
 
--- Sessions Table
+
 CREATE TABLE Sessions (
     session_id INT AUTO_INCREMENT PRIMARY KEY,
     event_id INT NOT NULL,
@@ -80,7 +80,7 @@ CREATE TABLE Sessions (
     FOREIGN KEY (event_venue_id) REFERENCES Event_Venue(event_venue_id)
 );
 
--- 5. Registrations Table
+
 CREATE TABLE Registrations (
     registration_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -93,7 +93,7 @@ CREATE TABLE Registrations (
     FOREIGN KEY (session_id) REFERENCES Sessions(session_id)
 );
 
--- Social Media Shares Table
+
 CREATE TABLE Social_Media_Shares (
     share_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
@@ -105,7 +105,7 @@ CREATE TABLE Social_Media_Shares (
     FOREIGN KEY (event_id) REFERENCES Events(event_id)
 );
 
--- 7. Notifications Table
+
 CREATE TABLE Notifications (
     notification_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -116,7 +116,7 @@ CREATE TABLE Notifications (
     FOREIGN KEY (event_id) REFERENCES Events(event_id)
 );
 
--- 8. Analytics Table
+
 CREATE TABLE Analytics (
     analytics_id INT AUTO_INCREMENT PRIMARY KEY,
     event_id INT NOT NULL,
