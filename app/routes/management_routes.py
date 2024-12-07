@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from app.models import get_all_events, create_event_draft, get_users_events, get_event_draft, update_event_draft, add_cohost_db, get_cohosts, remove_cohost_db, get_user_by_id, delete_event_db, add_venue_db, update_venue_db, get_event_venue, get_venue_details, show_all_venues, add_event_venue_db
+from app.models import get_all_events, create_event_draft, get_users_events, get_event_draft, update_event_draft, add_cohost_db, get_cohosts, remove_cohost_db, get_user_by_id, delete_event_db, add_venue_db, update_venue_db, get_event_venue, get_venue_details, show_all_venues, add_event_venue_db, update_event_venue_db, delete_event_venue_db
 #from app.models import get_event_by_id, update_event
 from app.tools import string_to_json, json_to_string
 
@@ -35,6 +35,9 @@ def edit_event(event_id):
     cohosts = get_cohosts(event_id)
     last_updated_by = get_user_by_id(drafted_event['last_updated_by'])
     event_venue = get_event_venue(event_id)
+    if event_venue:
+        event_venue['customized_details'] = json_to_string(event_venue['customized_details'])
+        event_venue['details_json'] = json_to_string(event_venue['details_json'])
     all_venues = show_all_venues()
     #print("evnent_venue", event_venue)
     
@@ -127,6 +130,12 @@ def update_event_venue(event_id):
         flashed = update_event_venue_db(event_id, customized_details)
         flash(flashed)
         return redirect(url_for('management.edit_event', event_id=event_id))
+    return redirect(url_for('management.edit_event', event_id=event_id))
+
+@bp.route('/delete_event_venue/<event_id>', methods=['GET', 'POST'])
+def delete_event_venue(event_id):
+    flashed = delete_event_venue_db(event_id)
+    flash(flashed)
     return redirect(url_for('management.edit_event', event_id=event_id))
 
 #analyze from the follwoing

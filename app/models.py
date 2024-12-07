@@ -193,7 +193,12 @@ def update_event_venue_db(event_id, customized_details):
     cursor.close()
     return "Venue details updated successfully!"
 
-
+def delete_event_venue_db(event_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("DELETE FROM Event_Venue WHERE event_id = %s", (event_id,))
+    mysql.connection.commit()
+    cursor.close()
+    return "Venue removed successfully!"
 
 #def add ticket
 
