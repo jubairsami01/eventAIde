@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from app.models import get_all_events, register_user, test, login_user
+from app.models import get_all_events, register_user, test, login_user, get_users_events, show_all_venues
 from app.services.ai_services import generate_directions
 
 bp = Blueprint('customer', __name__, url_prefix='/customer')
@@ -43,6 +43,22 @@ def login():
         flash('Login successful!')
         return redirect(url_for('home.home'))
     return render_template('customer/login.html')
+
+@bp.route('/my_events', methods=['GET', 'POST'])
+def my_events():
+    if 'user' not in session:
+        flash('Please log in to view your events.')
+        return redirect(url_for('customer.login'))
+    events = get_users_events(session['user_id'])
+    return render_template('customer/my_events.html', events=events)
+
+@bp.route('/update_existing_venues/', methods=['GET', 'POST'])
+def update_existing_venues():
+    if 'user' not in session:
+        flash('Please log in to view your events.')
+        return redirect(url_for('customer.login'))
+    venues = show_all_venues()
+    return render_template('customer/update_existing_venues.html', venues=venues)
 
 # User Logout
 @bp.route('/logout')

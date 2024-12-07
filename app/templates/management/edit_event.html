@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}login to eventAIde{% endblock %}
+{% block title %}eventAIde : Edit and Publish Event{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -38,6 +38,17 @@
                             <h5 class="card-title">{{ cohost.name }}</h5>
                             <p class="card-text">{{ cohost.email }}</p>
                             <a href="{{ url_for('management.remove_cohost', event_id=drafted_event.event_id, email=cohost.email) }}" class="btn btn-danger">Remove Co-Host</a>
+                        <script>
+                            function confirmDelete(event) {
+                                if (!confirm("Are you sure you want to remove this co-host?")) {
+                                    event.preventDefault();
+                                }
+                            }
+
+                            document.querySelectorAll('.btn-danger').forEach(button => {
+                                button.addEventListener('click', confirmDelete);
+                            });
+                        </script>
                         </div>
                     </div>
                 </div>
@@ -52,6 +63,63 @@
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit" class="btn btn-secondary mt-2">Add Co-Host</button>
             </form>
+            {% if event_venue %}
+            <h4 class="mt-4">Update Venue Details</h4>
+
+            {% else %}
+            <h4 class="mt-4">Add Venue to Event</h4>
+            <form id="venueForm" data-base-url="{{ url_for('management.add_event_venue', event_id=drafted_event.event_id) }}" method="POST" onsubmit="return setFormAction()">
+    <div class="form-group mt-2">
+        <label for="venue_name">Venue Name</label>
+        <input type="text" class="form-control" id="venue_name" name="venue_name" 
+               oninput="showSuggestions(this.value)" required>
+        <div id="suggestions" class="list-group mt-2"></div>
+    </div>
+
+    <script>
+        const venues = {{ all_venues | tojson | safe }};
+
+        function showSuggestions(query) {
+            const suggestions = document.getElementById('suggestions');
+            suggestions.innerHTML = '';
+            if (query.length === 0) return;
+
+            const filteredVenues = venues.filter(venue => 
+                venue.name.toLowerCase().includes(query.toLowerCase())
+            );
+            
+            filteredVenues.forEach(venue => {
+                const suggestionItem = document.createElement('a');
+                suggestionItem.classList.add('list-group-item', 'list-group-item-action');
+                suggestionItem.textContent = `${venue.name} (${venue.address})`;
+                suggestionItem.href = '#';
+                suggestionItem.onclick = function() {
+                    document.getElementById('venue_name').value = venue.name;
+                    document.getElementById('venue_id').value = venue.venue_id;
+                    suggestions.innerHTML = '';
+                    return false;
+                };
+                suggestions.appendChild(suggestionItem);
+            });
+        }
+
+        function setFormAction() {
+    const venueId = document.getElementById('venue_id').value;
+    const form = document.getElementById('venueForm');
+    const baseUrl = form.dataset.baseUrl;
+    
+    // Remove trailing slashes from baseUrl and clean up the path
+    const cleanBaseUrl = baseUrl.replace(/\/+$/, '');
+    form.action = `${cleanBaseUrl}/${venueId}`;
+    return true;
+}
+    </script>
+    
+    <input type="hidden" id="venue_id" name="venue_id">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn-secondary mt-2">Add Venue</button>
+</form>
+            {% endif %}
 
     </div>
 </div>

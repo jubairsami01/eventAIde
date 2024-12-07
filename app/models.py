@@ -36,7 +36,7 @@ def login_user(email, password):
 def create_event_draft(name, description, start_date, end_date, created_by, last_updated_by):
     cursor = mysql.connection.cursor()
     cursor.execute(
-        "INSERT INTO Events (name, description, start_date, end_date, created_by) VALUES (%s, %s, %s, %s, %s, %s)",
+        "INSERT INTO Events (name, description, start_date, end_date, created_by, last_updated_by) VALUES (%s, %s, %s, %s, %s, %s)",
         (name, description, start_date, end_date, created_by, last_updated_by),
     )
     mysql.connection.commit()
@@ -54,6 +54,12 @@ def update_event_draft(event_id, name, description, start_date, end_date, last_u
     cursor.close()
     return "Event updated successfully!"
 
+def delete_event_db(event_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("DELETE FROM Events WHERE event_id = %s", (event_id,))
+    mysql.connection.commit()
+    cursor.close()
+
 def get_event_draft(event_id):
     cursor = mysql.connection.cursor()
     cursor.execute("SELECT * FROM Events WHERE event_id = %s", (event_id,))
@@ -65,6 +71,9 @@ def add_cohost_db(event_id, email, added_by):
     cursor = mysql.connection.cursor()
     cursor.execute("SELECT user_id FROM Users WHERE email = %s", (email,))
     cohost = cursor.fetchone()
+    if not cohost:
+        cursor.close()
+        return "User not found! Please input a registered user's email."
 
     cursor.execute("SELECT * FROM CoHosts WHERE event_id = %s and user_id = %s", (event_id, cohost['user_id']))
     temp = cursor.fetchone()
@@ -72,9 +81,7 @@ def add_cohost_db(event_id, email, added_by):
         cursor.close()
         return "Cohost already added!"    
     #print(cohost)
-    if not cohost:
-        cursor.close()
-        return "User not found! Please input a registered user's email."
+    
     cursor.execute(
         "INSERT INTO CoHosts (event_id, user_id, added_by) VALUES (%s, %s, %s)",
         (event_id, cohost['user_id'], added_by), #might be error here, no error found
@@ -111,12 +118,12 @@ def remove_cohost_db(event_id, email):
 
 def get_users_events(user_id):
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT * FROM Events WHERE created_by = %s", (user_id,))
+    cursor.execute("SELECT DISTINCT Events.* FROM Events LEFT JOIN CoHosts ON Events.event_id = CoHosts.event_id WHERE Events.created_by = %s OR CoHosts.user_id = %s", (user_id, user_id))
     events = cursor.fetchall()
     cursor.close()
     return events
 
-def add_venue(name, location_data, address, details_json):
+def add_venue_db(name, location_data, address, details_json):
     cursor = mysql.connection.cursor()
     cursor.execute(
         "INSERT INTO Venues (name, location_data, address, details_json) VALUES (%s, %s, %s, %s)",
@@ -124,6 +131,7 @@ def add_venue(name, location_data, address, details_json):
     )
     mysql.connection.commit()
     cursor.close()
+    return "Venue added successfully!"
 
 def get_venue_details(venue_id):
     cursor = mysql.connection.cursor()
@@ -132,7 +140,14 @@ def get_venue_details(venue_id):
     cursor.close()
     return venue
 
-def modify_venue(venue_id, name, location_data, address, details_json):
+def show_all_venues():
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT name, venue_id, address FROM Venues")
+    venues = cursor.fetchall()
+    cursor.close()
+    return venues
+
+def update_venue_db(venue_id, name, location_data, address, details_json):
     cursor = mysql.connection.cursor()
     cursor.execute(
         "UPDATE Venues SET name = %s, location_data = %s, address = %s, details_json = %s WHERE venue_id = %s",
@@ -140,13 +155,44 @@ def modify_venue(venue_id, name, location_data, address, details_json):
     )
     mysql.connection.commit()
     cursor.close()
+    return "Venue updated successfully!"
 
-def show_all_venues():
+def get_event_venue(event_id):
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT name, venue_id FROM Venues")
-    venues = cursor.fetchall()
+    cursor.execute(
+    "SELECT ev.event_id, ev.venue_id, v.name, v.address, v.location_data, v.details_json, ev.customized_details "
+    "FROM Event_Venue ev "
+    "JOIN Venues v ON ev.venue_id = v.venue_id "
+    "WHERE ev.event_id = %s",
+    (event_id,)
+    )
+    event_venue = cursor.fetchone()
     cursor.close()
-    return venues
+    return event_venue
+
+def add_event_venue_db(event_id, venue_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT details_json FROM Venues WHERE venue_id = %s", (venue_id,))
+    customized_details = cursor.fetchone()
+
+    cursor.execute(
+        "INSERT INTO Event_Venue (event_id, venue_id, customized_details) VALUES (%s, %s, %s)",
+        (event_id, venue_id, customized_details['details_json']),
+    )
+    mysql.connection.commit()
+    cursor.close()
+    return "Venue added successfully!"
+
+def update_event_venue_db(event_id, customized_details):
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "UPDATE Event_Venue SET customized_details = %s WHERE event_id = %s",
+        (customized_details, event_id),
+    )
+    mysql.connection.commit()
+    cursor.close()
+    return "Venue details updated successfully!"
+
 
 
 #def add ticket

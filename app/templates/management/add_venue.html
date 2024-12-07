@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}eventAIde : Add New Venue{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2>Add New Venue</h2>
+            <form action="{{ url_for('management.add_venue') }}" method="post" id="addVenueForm">
+                <div class="form-group">
+                    <label for="name">Venue Name</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+                <div class="form-group mt-2">
+                    <label for="address">Address</label>
+                    <input type="text" class="form-control" id="address" name="address" required>
+                </div>
+                <div class="form-group mt-2">
+                    <label for="details_json">Details (key : value)</label>
+                    <textarea class="form-control" id="details_json" name="details_json" rows="3" required></textarea>
+                </div>
+                <div class="form-group mt-2">
+                    <label for="location">Location</label>
+                    <input type="text" id="location_data" name="location_data" class="form-control" readonly>
+                </div>
+                <div id="map" style="height: 400px;"></div>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-primary mt-2">Add Venue</button>
+            </form>
+            
+    </div>
+</div>
+
+
+<script src='https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js'></script>
+<link href='https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css' rel='stylesheet' />
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoianViYWlyc2FtaSIsImEiOiJjbTBjMmdoanQwZml2MmtvZHVsOG94dnowIn0.hTL8zltp0H6c8pVfzlzkiA';
+var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/streets-v11',
+    center: [90.42436370960735,23.77316151783525],
+    zoom: 8
+});
+
+var marker = new mapboxgl.Marker({
+    draggable: true
+})
+.setLngLat([90.42436370960735,23.77316151783525])
+.addTo(map);
+
+function onDragEnd() {
+    var lngLat = marker.getLngLat();
+    document.getElementById('location_data').value = lngLat.lng + ',' + lngLat.lat;
+}
+
+marker.on('dragend', onDragEnd);
+</script>
+
+{% endblock %}
+
+
+

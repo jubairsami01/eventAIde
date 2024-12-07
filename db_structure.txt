@@ -154,4 +154,6 @@ describe testsample;
 +-------+--------------+------+-----+---------+----------------+
 
 
-
+CREATE USER 'root2'@'localhost' IDENTIFIED BY '1234abC$';
+GRANT ALL PRIVILEGES ON eventaide_db.* TO 'root2'@'localhost';
+FLUSH PRIVILEGES;
