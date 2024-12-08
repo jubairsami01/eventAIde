@@ -3,9 +3,25 @@
 
 {% block content %}
 <div class="container">
-    <!--event banao-->
-    <p class="text-center">here will be infinite scrollable events?</p>
+    {% for event in published_events %}
 
+    <div class="card mt-3">
+        <div class="card-header">
+            {{ event.name }}
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">{{ event.description }}</h5>
+            <p class="card-text">Venue: {{ event.venue }}</p>
+            <p class="card-text">Start Date: {{ event.start_date }}</p>
+            <p class="card-text">End Date: {{ event.end_date }}</p>
+            <p class="card-text">Status: {{ event.status }}</p>
+            <p class="card-text">Created At: {{ event.created_at }}</p>
+            <p class="card-text">Updated At: {{ event.updated_at }}</p>
+                   
+        </div>
+    </div>
+
+    {% endfor %}
 </div>
 
 

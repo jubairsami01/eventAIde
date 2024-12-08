@@ -250,10 +250,10 @@ def set_event_status_db(event_id, status):
 
 #def add ticket
 
-def get_all_events():
+def get_all_published_events():
     """Retrieve all events from the database."""
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT * FROM events")
+    cursor.execute("SELECT * FROM events where visibility = 'public'")
     events = cursor.fetchall()
     cursor.close()
     return events
@@ -265,6 +265,13 @@ def get_user_by_id(user_id):
     user = cursor.fetchone()
     cursor.close()
     return user
+
+def get_event_details_customer_db(event_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM Events WHERE event_id = %s", (event_id,)) #need to update
+    event = cursor.fetchone()
+    cursor.close()
+    return event
 
 def update_user_role(user_id, role):
     cursor = mysql.connection.cursor()
@@ -278,3 +285,6 @@ def test():
     testt = cursor.fetchall()
     cursor.close()
     return testt
+
+
+#lab assignment:

@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from app.models import get_all_events, register_user, test, login_user, get_users_events, show_all_venues
+from app.models import register_user, test, login_user, get_users_events, show_all_venues
 from app.services.ai_services import generate_directions
 
 bp = Blueprint('customer', __name__, url_prefix='/customer')
@@ -66,6 +66,16 @@ def logout():
     session.clear()
     return redirect(url_for('customer.login'))
 
+@bp.route('/view_event_details/<event_id>')
+def view_event_details(event_id):
+    event = get_event(event_id)
+    return render_template('customer/view_event_details.html', event=event)
+
+
+
+
+
+
 
 # Customer Dashboard
 @bp.route('/')
@@ -86,3 +96,7 @@ def live_chat():
     venue_data = {}  # Replace with actual venue data fetched from the database
     directions = generate_directions(current_location, destination, venue_data)
     return {'directions': directions}
+
+
+#lab assignment:
+#make json api
