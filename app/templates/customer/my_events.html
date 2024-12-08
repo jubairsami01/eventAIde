@@ -5,7 +5,7 @@
 
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-md-9">
             <h2>My Events</h2>
             <p>Here are the events you have created or are a co-host for.</p>
             <table class="table">
@@ -15,6 +15,7 @@
                         <th scope="col">Start Time</th>
                         <th scope="col">End Time</th>
                         <th scope="col">Status</th>
+                        <th scope="col">Visibility</th>
                         <th scope="col">Actions</th>
                     </tr>
                 </thead>
@@ -25,6 +26,7 @@
                         <td>{{ event.start_date }}</td>
                         <td>{{ event.end_date }}</td>
                         <td>{{ event.status }}</td>
+                        <td>{{ event.visibility }}</td>
                         <td>
                             <a href="{{ url_for('management.edit_event', event_id=event.event_id) }}" class="btn btn-primary">Edit</a>
                             <a href="{{ url_for('management.delete_event', event_id=event.event_id) }}" class="btn btn-danger" onclick="return confirmDelete()">Delete</a>

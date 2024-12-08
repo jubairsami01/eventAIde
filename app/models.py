@@ -200,6 +200,54 @@ def delete_event_venue_db(event_id):
     cursor.close()
     return "Venue removed successfully!"
 
+def add_session_db(event_id, name, description, start_time, end_time, capacity):
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "INSERT INTO Sessions (event_id, name, description, start_time, end_time, capacity) VALUES (%s, %s, %s, %s, %s, %s)",
+        (event_id, name, description, start_time, end_time, capacity),
+    )
+    mysql.connection.commit()
+    cursor.close()
+    return "Session added successfully!"
+
+def update_session_db(session_id, name, description, start_time, end_time, capacity):
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "UPDATE Sessions SET name = %s, description = %s, start_time = %s, end_time = %s, capacity = %s WHERE session_id = %s",
+        (name, description, start_time, end_time, capacity, session_id),
+    )
+    mysql.connection.commit()
+    cursor.close()
+    return "Session updated successfully!"
+
+def delete_session_db(session_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("DELETE FROM Sessions WHERE session_id = %s", (session_id,))
+    mysql.connection.commit()
+    cursor.close()
+    return "Session deleted successfully!"
+
+def get_event_sessions_db(event_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM Sessions WHERE event_id = %s ORDER BY start_time ASC, end_time ASC", (event_id,))
+    sessions = cursor.fetchall()
+    cursor.close()
+    return sessions
+
+def publish_event_db(event_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("UPDATE Events SET visibility = 'public' WHERE event_id = %s", (event_id,))
+    mysql.connection.commit()
+    cursor.close()
+    return "Event published successfully!"
+
+def set_event_status_db(event_id, status):
+    cursor = mysql.connection.cursor()
+    cursor.execute("UPDATE Events SET status = %s WHERE event_id = %s", (status, event_id))
+    mysql.connection.commit()
+    cursor.close()
+    return "Event status updated successfully!"
+
 #def add ticket
 
 def get_all_events():
