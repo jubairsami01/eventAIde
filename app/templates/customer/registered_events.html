@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}eventAIde : Registered Events{% endblock %}
+
+{% block content %}
+
+
+<div class="container">
+  <div class="row justify-content-center">
+      <div class="col-md-12">
+          <h2>Registered Events</h2>
+          <table class="table">
+              <thead>
+                  <tr>
+                      <th scope="col">Event Name</th>
+                      <th scope="col">Venue</th>
+                      <th scope="col">Start Time</th>
+                      <th scope="col">End Time</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Details(Download tickets/unregister from here)</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for event in events %}
+                  <tr>
+                      <td>{{ event.event_name }}</td>
+                      <td>{{ event.venue_name }}</td>
+                      <td>{{ event.start_date }}</td>
+                      <td>{{ event.end_date }}</td>
+                      <td>{{ event.status }}</td>
+                      <td>
+                        <a href="{{ url_for('customer.view_event_details', event_id=event.event_id) }}" class="btn btn-primary">View Details</a>
+                      </td>
+                  </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
+      </div>
+  </div>
+</div>
+ 
+
+{% endblock %}

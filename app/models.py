@@ -229,17 +229,32 @@ def delete_session_db(session_id):
 
 def get_event_sessions_db(event_id):
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT * FROM Sessions WHERE event_id = %s ORDER BY start_time ASC, end_time ASC", (event_id,))
+    query = """
+    SELECT 
+        s.*,
+        (SELECT COUNT(*) FROM Registrations r WHERE r.session_id = s.session_id) AS number_of_registrations
+    FROM Sessions s
+    WHERE s.event_id = %s
+    ORDER BY s.start_time ASC, s.end_time ASC
+    """
+    cursor.execute(query, (event_id,))
     sessions = cursor.fetchall()
     cursor.close()
     return sessions
 
-def publish_event_db(event_id):
+def publish_event_db(event_id): #used in homepage
     cursor = mysql.connection.cursor()
     cursor.execute("UPDATE Events SET visibility = 'public' WHERE event_id = %s", (event_id,))
     mysql.connection.commit()
     cursor.close()
     return "Event published successfully!"
+
+def unpublish_event_db(event_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("UPDATE Events SET visibility = 'private' WHERE event_id = %s", (event_id,))
+    mysql.connection.commit()
+    cursor.close()
+    return "Event unpublished successfully!"
 
 def set_event_status_db(event_id, status):
     cursor = mysql.connection.cursor()
@@ -248,10 +263,7 @@ def set_event_status_db(event_id, status):
     cursor.close()
     return "Event status updated successfully!"
 
-#def add ticket
-
 def get_all_published_events():
-    """Retrieve all events from the database."""
     cursor = mysql.connection.cursor()
     cursor.execute("SELECT * FROM events where visibility = 'public'")
     events = cursor.fetchall()
@@ -266,12 +278,134 @@ def get_user_by_id(user_id):
     cursor.close()
     return user
 
-def get_event_details_customer_db(event_id):
+def get_event_details_for_customer_db(event_id):
+    """Retrieve detailed event information including venue and counts."""
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT * FROM Events WHERE event_id = %s", (event_id,)) #need to update
+    query = """
+    SELECT 
+        e.event_id,
+        e.name AS event_name,
+        e.description,
+        e.start_date,
+        e.end_date,
+        e.created_by,
+        e.status,
+        e.created_at,
+        e.updated_at,
+        e.last_updated_by,
+        v.name AS venue_name,
+        v.address AS venue_address,
+        v.location_data AS venue_location_data,
+        (SELECT COUNT(*) FROM Registrations r WHERE r.event_id = e.event_id) AS number_of_registrations,
+        (SELECT COUNT(*) FROM Sessions s WHERE s.event_id = e.event_id) AS number_of_sessions
+    FROM Events e
+    LEFT JOIN Event_Venue ev ON e.event_id = ev.event_id
+    LEFT JOIN Venues v ON ev.venue_id = v.venue_id
+    WHERE e.event_id = %s
+    """
+    cursor.execute(query, (event_id,))
     event = cursor.fetchone()
+    created_by = get_user_by_id(event['created_by'])
+    last_updated_by = get_user_by_id(event['last_updated_by'])
+    event['created_by'] = created_by['name']
+    event['last_updated_by'] = last_updated_by['name']
     cursor.close()
     return event
+
+def register_for_event_db(event_id, user_id, session_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM Registrations WHERE user_id = %s AND event_id = %s AND session_id = %s", (user_id, event_id, session_id))
+    existing_registration = cursor.fetchone()
+    if existing_registration:
+        cursor.close()
+        return "You are already registered for the selected session of this event!"
+    cursor.execute("SELECT capacity FROM Sessions WHERE session_id = %s", (session_id,))
+    session = cursor.fetchone()
+    cursor.execute("SELECT COUNT(*) AS count FROM Registrations WHERE session_id = %s", (session_id,))
+    registrations = cursor.fetchone()
+    if registrations['count'] >= session['capacity']:
+        cursor.close()
+        return "Session is full! Please select another session."
+    cursor.execute(
+        "INSERT INTO Registrations (event_id, user_id, session_id) VALUES (%s, %s, %s)",
+        (event_id, user_id, session_id),
+    )
+    mysql.connection.commit()
+    cursor.close()
+    return "Registration successful!"
+
+def unregister_for_event_db(event_id, user_id, session_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM Registrations WHERE user_id = %s AND event_id = %s AND session_id = %s", (user_id, event_id, session_id))
+    existing_registration = cursor.fetchone()
+    if not existing_registration:
+        cursor.close()
+        return "You are not registered for the selected session of this event!"
+    cursor.execute(
+        "DELETE FROM Registrations WHERE user_id = %s AND event_id = %s AND session_id = %s",
+        (user_id, event_id, session_id),
+    )
+    mysql.connection.commit()
+    cursor.close()
+    return "Unregistration successful!"
+
+def isregistered_event_session(event_id, user_id, session_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM Registrations WHERE user_id = %s AND event_id = %s AND session_id = %s", (user_id, event_id, session_id))
+    existing_registration = cursor.fetchone()
+    if existing_registration:
+        cursor.close()
+        return True
+    else:
+        cursor.close()
+        return False
+
+def get_registered_events(user_id):
+    cursor = mysql.connection.cursor()
+    query = """
+    SELECT 
+        e.event_id,
+        e.name AS event_name,
+        e.description,
+        e.start_date,
+        e.end_date,
+        e.created_by,
+        e.status,
+        e.created_at,
+        e.updated_at,
+        e.last_updated_by,
+        v.name AS venue_name,
+        v.address AS venue_address,
+        v.location_data AS venue_location_data,
+        (SELECT COUNT(*) FROM Registrations r WHERE r.event_id = e.event_id) AS number_of_registrations,
+        (SELECT COUNT(*) FROM Sessions s WHERE s.event_id = e.event_id) AS number_of_sessions
+    FROM Events e
+    LEFT JOIN Event_Venue ev ON e.event_id = ev.event_id
+    LEFT JOIN Venues v ON ev.venue_id = v.venue_id
+    WHERE e.event_id IN (SELECT DISTINCT event_id FROM Registrations WHERE user_id = %s)
+    """
+    cursor.execute(query, (user_id,))
+    events = cursor.fetchall()
+    cursor.close()
+    return events
+
+def view_registration_info(event_id, user_id, session_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "SELECT * FROM Registrations WHERE event_id = %s AND user_id = %s AND session_id = %s",
+        (event_id, user_id, session_id)
+    )
+    registration_info = cursor.fetchone()
+    cursor.execute(
+        "SELECT * FROM Sessions WHERE session_id = %s",
+        (session_id,)
+    )
+    session_info = cursor.fetchone()
+    cursor.close()
+    return registration_info, session_info
+    
+
+#def add ticket
 
 def update_user_role(user_id, role):
     cursor = mysql.connection.cursor()

@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from app.models import register_user, test, login_user, get_users_events, show_all_venues
+from app.models import view_registration_info, get_registered_events, isregistered_event_session, register_user, test, login_user, get_users_events, show_all_venues, get_event_details_for_customer_db, get_event_sessions_db, register_for_event_db, unregister_for_event_db
 from app.services.ai_services import generate_directions
 
 bp = Blueprint('customer', __name__, url_prefix='/customer')
@@ -68,11 +68,57 @@ def logout():
 
 @bp.route('/view_event_details/<event_id>')
 def view_event_details(event_id):
-    event = get_event(event_id)
-    return render_template('customer/view_event_details.html', event=event)
+    event = get_event_details_for_customer_db(event_id)
+    sessions = get_event_sessions_db(event_id)
+    if 'user_id' in session:
+        for s in sessions:
+            s['is_registered'] = isregistered_event_session(event_id, session['user_id'], s['session_id'])
+    return render_template('customer/view_event_details.html', event=event, sessions=sessions)
 
+@bp.route('/register_for_event/<event_id>/<session_id>', methods=['GET', 'POST'])
+def register_for_event(event_id, session_id):
+    if 'user_id' not in session:
+        flash('Please log in to register for an event.')
+        return redirect(url_for('customer.login'))
+    sessions = get_event_sessions_db(event_id)
+    if request.method == 'POST':
+        #session_id = request.form['session_id']
+        flashed = register_for_event_db(event_id, session['user_id'], session_id)
+        flash(flashed)
+        return redirect(url_for('customer.view_event_details', event_id=event_id))
+    return redirect(url_for('customer.view_event_details', event_id=event_id))
 
+@bp.route('/unregister_for_event/<event_id>/<session_id>', methods=['GET', 'POST'])
+def unregister_for_event(event_id, session_id):
+    if 'user_id' not in session:
+        flash('Please log in to unregister for an event.')
+        return redirect(url_for('customer.login'))
+    
+    if request.method == 'POST':
+        #session_id = request.form['session_id']
+        flashed = unregister_for_event_db(event_id, session['user_id'], session_id)
+        flash(flashed)
+    return redirect(url_for('customer.view_event_details', event_id=event_id))
 
+@bp.route('/registered_events')
+def registered_events():
+    if 'user_id' not in session:
+        flash('Please log in to view your events.')
+        return redirect(url_for('customer.login'))
+    events = get_registered_events(session['user_id'])
+    return render_template('customer/registered_events.html', events=events)
+
+@bp.route('/view_ticket/<event_id>/<session_id>')
+def view_ticket(event_id, session_id):
+    if 'user_id' not in session:
+        flash('Please log in to view your ticket.')
+        return redirect(url_for('customer.login'))
+    event = get_event_details_for_customer_db(event_id)
+    registration_info_detailed = view_registration_info(event_id, session['user_id'], session_id)
+    registration_info = registration_info_detailed[0]
+    session_info = registration_info_detailed[1]
+    
+    return render_template('customer/view_ticket.html', event=event, registration_info=registration_info, session_info=session_info)
 
 
 

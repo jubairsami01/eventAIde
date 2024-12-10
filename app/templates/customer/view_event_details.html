@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block title %}eventAIde : {{ event.event_name }}{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <h2>Sessions in {{event.event_name}}</h2>
+  <br>
+    <div class="container py-5">
+        <div class="main-timeline-4 text-white">
+        {% for esession in sessions %}
+          {% if loop.index is even %}
+            <div class="timeline-4 right-4">
+          {% else %}
+            <div class="timeline-4 left-4">
+          {% endif %}
+          {% if loop.index is even %}
+              <div class="card gradient-custom-4">
+          {% else %}
+              <div class="card gradient-custom">
+          {% endif %}
+                <div class="card-body p-4">
+                  <i class="fas fa-brain fa-2x mb-3"></i>
+                  <h2 class="text-primary-modulus">{{ esession.name }}</h2>
+                  <h5 class="text-primary-modulus">{{ esession.start_time }} - {{ esession.end_time }}</h5>
+                  <p class="small text-white-50 mb-4">{{ esession.date }}</p>
+                  <p class="text-primary-modulus">{{ esession.description }}</p>
+                  
+                  <h6 class="badge bg-body-tertiary text-black mb-0">Capacity: {{ esession.capacity }}</h6>
+                  <h6 class="badge bg-body-tertiary text-black mb-0">Seat(s) Left: {{ esession.capacity - esession.number_of_registrations }}</h6>
+                  <p></p>
+                  {% if session['user'] %}
+                  
+                    {% if esession.is_registered %}
+                    <a href="{{ url_for('customer.view_ticket', event_id = event.event_id, session_id=esession.session_id) }}" class="btn btn-outline-light" target="_blank">View Ticket</a>
+                    <form action="{{ url_for('customer.unregister_for_event', event_id = event.event_id, session_id=esession.session_id) }}" method="post" class="d-inline">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <script>
+                      function confirmUnregister(event) {
+                        if (!confirm("Are you sure you want to unregister from this session?")) {
+                          event.preventDefault();
+                        }
+                      }
+                    </script>
+                    <button type="submit" class="btn btn-outline-light btn-hover-red" onclick="confirmUnregister(event)">Unregister</button>
+                    </form>
+                    <style>
+                      .btn-hover-red:hover {
+                      background-color: rgb(252, 97, 97);
+                      color: white;
+                      }
+                    </style>
+                    {% else %}
+                    {% if esession.number_of_registrations < esession.capacity %}
+                    <form action="{{ url_for('customer.register_for_event', event_id = event.event_id, session_id=esession.session_id) }}" method="post" class="d-inline">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button type="submit" class="btn btn-outline-light">Register</button>
+                    </form>
+                    {% else %}
+                      <a href="#" class="btn btn-outline-light disabled">Session Full</a>
+                    
+                    {% endif %}
+                    {% endif %}
+                    
+                  {% else %}
+                    <a href="{{ url_for('customer.login') }}" class="btn btn-outline-light">Login to Register</a>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+        {% endfor %}
+        </div>
+      </div>
+</div>
+
+<div class="container">
+  
+  <h2>Event Details</h2>
+  <br>
+  <div class="card">
+    <div class="card-body">
+      <h4 class="card-title">{{ event.event_name }}</h4>
+      <p class="card-text">{{ event.description }}</p>
+      
+      <div id="map" style="height: 300px;"></div>
+                <link href='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css' rel='stylesheet' />
+                <script src='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js'></script>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const locationArray = '{{ event.venue_location_data }}'.split(',');
+                        const latitude = locationArray[1];
+                        const longitude = locationArray[0];
+                        mapboxgl.accessToken = 'pk.eyJ1IjoianViYWlyc2FtaSIsImEiOiJjbTBjMmdoanQwZml2MmtvZHVsOG94dnowIn0.hTL8zltp0H6c8pVfzlzkiA';
+                        const map = new mapboxgl.Map({
+                            container: 'map',
+                            style: 'mapbox://styles/mapbox/streets-v11',
+                            center: [longitude, latitude],
+                            zoom: 12
+                        });
+
+                        new mapboxgl.Marker()
+                            .setLngLat([longitude, latitude])
+                            .addTo(map);
+                    });
+                </script>
+      <br>
+      <p class="card-text"><strong>Start Date:</strong> {{ event.start_date }}</p>
+      <p class="card-text"><strong>End Date:</strong> {{ event.end_date }}</p>
+      <p class="card-text"><strong>Venue:</strong> {{ event.venue_name }}</p>
+      <p class="card-text"><strong>Address:</strong> {{ event.venue_address }}</p>
+      <p class="card-text"><strong>Total Registrations:</strong> {{ event.number_of_registrations }}</p>
+      <p class="card-text"><strong>Total Sessions:</strong> {{ event.number_of_sessions }}</p>
+      <p class="card-text"><strong>Created By:</strong> {{ event.created_by }}</p>
+      <p class="card-text"><strong>Status:</strong> {{ event.status }}</p>
+      <p class="card-text"><strong>Created At:</strong> {{ event.created_at }}</p>
+      <p class="card-text"><strong>Updated At:</strong> {{ event.updated_at }}</p>
+      <p class="card-text"><strong>Last Updated By:</strong> {{ event.last_updated_by }}</p>
+      <button class="btn btn-success mt-2" onclick="openGoogleMaps('{{ event.venue_location_data }}')">Open Location Direction in Google Map</button>
+    </div>
+    <script>
+      function openGoogleMaps(location) {
+          const locationArray = location.split(',');
+          const latitude = locationArray[1];
+          const longitude = locationArray[0];
+          const baseUrl = 'https://www.google.com/maps/dir/?api=1&destination=';
+          const url = baseUrl + latitude + ',' + longitude;
+          window.open(url, '_blank');
+      }
+  </script>
+{% endblock %}

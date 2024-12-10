@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from app.models import add_session_db, get_event_sessions_db, create_event_draft, get_users_events, get_event_draft, update_event_draft, add_cohost_db, get_cohosts, remove_cohost_db, get_user_by_id, delete_event_db, add_venue_db, update_venue_db, get_event_venue, get_venue_details, show_all_venues, add_event_venue_db, update_event_venue_db, delete_event_venue_db, update_session_db, delete_session_db, publish_event_db, set_event_status_db
+from app.models import unpublish_event_db, add_session_db, get_event_sessions_db, create_event_draft, get_users_events, get_event_draft, update_event_draft, add_cohost_db, get_cohosts, remove_cohost_db, get_user_by_id, delete_event_db, add_venue_db, update_venue_db, get_event_venue, get_venue_details, show_all_venues, add_event_venue_db, update_event_venue_db, delete_event_venue_db, update_session_db, delete_session_db, publish_event_db, set_event_status_db
 #from app.models import get_event_by_id, update_event
 from app.tools import string_to_json, json_to_string
 
@@ -22,7 +22,7 @@ def draft_event():
         end_time = request.form['end_time']
         create_event_draft(name, description, start_time, end_time, session['user_id'], session['user_id'])
         flash('Event drafted successfully! Now add more information to publish it from the management dashboard.')
-        return redirect(url_for('management.dashboard'))
+        return redirect(url_for('customer.my_events'))
     return render_template('management/draft_event.html')
 
 @bp.route('/edit_event/<event_id>', methods=['GET', 'POST'])
@@ -56,6 +56,7 @@ def edit_event(event_id):
 def delete_event(event_id):
     delete_event_db(event_id)
     flash('Event deleted successfully!')
+    return redirect(url_for('customer.my_events'))
 
 @bp.route('/add_cohost/<event_id>', methods=['GET', 'POST'])
 def add_cohost(event_id):
@@ -174,6 +175,12 @@ def update_session(event_id, session_id):
 @bp.route('/publish_event/<event_id>', methods=['GET', 'POST'])
 def publish_event(event_id):
     flashed = publish_event_db(event_id)
+    flash(flashed)
+    return redirect(url_for('management.edit_event', event_id=event_id))
+
+@bp.route('/unpublish_event/<event_id>', methods=['GET', 'POST'])
+def unpublish_event(event_id):
+    flashed = unpublish_event_db(event_id)
     flash(flashed)
     return redirect(url_for('management.edit_event', event_id=event_id))
 

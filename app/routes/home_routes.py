@@ -7,3 +7,4 @@ def home():
     published_events = get_all_published_events()
     return render_template('home.html', published_events=published_events)
 
+

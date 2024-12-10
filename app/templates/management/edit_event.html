@@ -32,7 +32,7 @@
             <h4 class="mt-4">Assigned Co-Hosts</h4>
             
                 {% for cohost in cohosts %}
-                <div class="col-md-4">
+                <div class="col">
                     <div class="card mb-3">
                         <div class="card-body">
                             <h5 class="card-title">{{ cohost.name }}</h5>
@@ -278,7 +278,7 @@
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="btn btn-secondary mt-2">Set as Completed</button>
                 </form>
-
+                {% if drafted_event.visibility == 'private' %}
                 <h4 class="mt-4">Publish Event</h4>
                 <form action="{{ url_for('management.publish_event', event_id=drafted_event.event_id) }}" method="post" onsubmit="return confirmPublish()">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -290,7 +290,13 @@
                         return confirm("Are you sure you want to publish this event?");
                     }
                 </script>
-
+                {%else%}
+                <h4 class="mt-4">Unublish Event</h4>
+                <form action="{{ url_for('management.unpublish_event', event_id=drafted_event.event_id) }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-secondary mt-2">Unublish Event</button>
+                </form>
+                {% endif %}
 
 
     </div>
