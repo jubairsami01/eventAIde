@@ -1,6 +1,7 @@
 from app import mysql
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
+from flask import session
 
 # Example database interaction
 
@@ -32,6 +33,28 @@ def login_user(email, password):
     if user and check_password_hash(user['password'], password):
         return user
     
+def update_user(user_id, name, email, password):
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM Users WHERE user_id = %s", (user_id,))
+    user = cursor.fetchone()  ###
+    if not check_password_hash(user['password'], password):
+        return "Wrong Password, Please try again!"
+
+    cursor.execute("SELECT * FROM Users WHERE email = %s", (email,))
+    existing_user = cursor.fetchone()
+    if existing_user and existing_user['user_id'] != user['user_id']:
+        cursor.close()
+        return "Another account with this Email already exists!"
+
+    cursor.execute(
+        "UPDATE Users SET name = %s, email = %s WHERE user_id = %s",
+        (name, email, user_id),
+    )
+    mysql.connection.commit()
+    cursor.close()
+    session['name'] = name
+    session['email'] = email
+    return "Info updated successfully!"
 
 def create_event_draft(name, description, start_date, end_date, created_by, last_updated_by):
     cursor = mysql.connection.cursor()

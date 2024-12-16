@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}eventAIde : Add New Venue{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2>My Profile</h2>
+            <form action="{{ url_for('customer.my_profile') }}" method="post" id="myProfileForm">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" class="form-control" id="name" name="name" value="{{ session['name'] }}" required>
+                </div>
+                <div class="form-group mt-2">
+                    <label for="email">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" value="{{ session['email'] }}" required>
+                </div>
+                <div class="form-group mt-2">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-primary mt-2">Update Profile</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+
+
