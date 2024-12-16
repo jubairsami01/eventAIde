@@ -56,22 +56,29 @@ def update_user(user_id, name, email, password):
     session['email'] = email
     return "Info updated successfully!"
 
-def create_event_draft(name, description, start_date, end_date, created_by, last_updated_by):
+def create_event_draft(name, description, start_date, end_date, created_by, last_updated_by, cover_photo=None):
     cursor = mysql.connection.cursor()
     cursor.execute(
-        "INSERT INTO Events (name, description, start_date, end_date, created_by, last_updated_by) VALUES (%s, %s, %s, %s, %s, %s)",
-        (name, description, start_date, end_date, created_by, last_updated_by),
+        "INSERT INTO Events (name, description, start_date, end_date, created_by, last_updated_by, cover_photo) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+        (name, description, start_date, end_date, created_by, last_updated_by, cover_photo),
     )
     mysql.connection.commit()
     cursor.execute("UPDATE Users SET role = 'both' WHERE user_id = %s", (created_by,))
     mysql.connection.commit()
     cursor.close()
 
-def update_event_draft(event_id, name, description, start_date, end_date, last_updated_by):
+def get_new_event_id():
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT event_id FROM Events ORDER BY event_id DESC LIMIT 1")
+    event_id = cursor.fetchone()
+    cursor.close()
+    return event_id['event_id']+1
+
+def update_event_draft(event_id, name, description, start_date, end_date, last_updated_by, cover_photo=None):
     cursor = mysql.connection.cursor()
     cursor.execute(
-        "UPDATE Events SET name = %s, description = %s, start_date = %s, end_date = %s, last_updated_by = %s WHERE event_id = %s",
-        (name, description, start_date, end_date, last_updated_by, event_id),
+        "UPDATE Events SET name = %s, description = %s, start_date = %s, end_date = %s, last_updated_by = %s, cover_photo = %s WHERE event_id = %s",
+        (name, description, start_date, end_date, last_updated_by, cover_photo, event_id),
     )
     mysql.connection.commit()
     cursor.close()
@@ -316,6 +323,7 @@ def get_event_details_for_customer_db(event_id):
         e.created_at,
         e.updated_at,
         e.last_updated_by,
+        e.cover_photo,
         v.name AS venue_name,
         v.address AS venue_address,
         v.location_data AS venue_location_data,

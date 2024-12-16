@@ -10,6 +10,9 @@
             {{ event.name }}
         </div>
         <div class="card-body">
+            {% if event.cover_photo %}
+            <img src="{{ url_for('static', filename=event.cover_photo) }}" class="card-img-top" alt="Event Cover Photo">
+            {% endif %}
             <h5 class="card-title">{{ event.description }}</h5>
             <p class="card-text">Start Date: {{ event.start_date }}</p>
             <p class="card-text">End Date: {{ event.end_date }}</p>

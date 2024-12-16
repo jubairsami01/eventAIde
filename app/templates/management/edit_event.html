@@ -7,7 +7,7 @@
         <div class="col-md-6">
             <h2>Edit & Publish Event</h2>
             <p>This event was last updated by {{ last_updated_by.name }} ({{ last_updated_by.email }})</p>
-            <form action="{{ url_for('management.edit_event', event_id=drafted_event.event_id) }}" method="post" id="editEventForm">
+            <form action="{{ url_for('management.edit_event', event_id=drafted_event.event_id) }}" method="post" id="editEventForm" enctype="multipart/form-data">
                 <h4>Edit Primary Details</h4>
                 <div class="form-group">
                     <label for="name">Event Name</label>
@@ -24,6 +24,13 @@
                 <div class="form-group mt-2">
                     <label for="end_time">End Time</label>
                     <input type="datetime-local" class="form-control" id="end_time" name="end_time" value="{{ drafted_event.end_date }}" required>
+                </div>
+                <div class="form-group mt-2">
+                    <label for="cover_photo">Cover Photo</label>
+                    <input type="file" class="form-control" id="cover_photo" name="cover_photo">
+                    {% if drafted_event.cover_photo %}
+                    <img src="{{ url_for('static', filename=drafted_event.cover_photo) }}" alt="Cover Photo" class="img-thumbnail mt-2">
+                    {% endif %}
                 </div>
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit" class="btn btn-primary mt-2">Update Event</button>

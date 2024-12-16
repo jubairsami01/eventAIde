@@ -1,7 +1,14 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from app.models import unpublish_event_db, add_session_db, get_event_sessions_db, create_event_draft, get_users_events, get_event_draft, update_event_draft, add_cohost_db, get_cohosts, remove_cohost_db, get_user_by_id, delete_event_db, add_venue_db, update_venue_db, get_event_venue, get_venue_details, show_all_venues, add_event_venue_db, update_event_venue_db, delete_event_venue_db, update_session_db, delete_session_db, publish_event_db, set_event_status_db
+from app.models import get_new_event_id, unpublish_event_db, add_session_db, get_event_sessions_db, create_event_draft, get_users_events, get_event_draft, update_event_draft, add_cohost_db, get_cohosts, remove_cohost_db, get_user_by_id, delete_event_db, add_venue_db, update_venue_db, get_event_venue, get_venue_details, show_all_venues, add_event_venue_db, update_event_venue_db, delete_event_venue_db, update_session_db, delete_session_db, publish_event_db, set_event_status_db
 #from app.models import get_event_by_id, update_event
 from app.tools import string_to_json, json_to_string
+import os
+from werkzeug.utils import secure_filename
+from flask import current_app as app
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 bp = Blueprint('management', __name__, url_prefix='/management')
 
@@ -20,7 +27,39 @@ def draft_event():
         description = request.form['description']
         start_time = request.form['start_time']
         end_time = request.form['end_time']
-        create_event_draft(name, description, start_time, end_time, session['user_id'], session['user_id'])
+        cover_photo = None
+        # Handle file upload
+        if 'cover_photo' in request.files:
+            file = request.files['cover_photo']
+            # Check if file was actually selected
+            if file and file.filename != '' and allowed_file(file.filename):
+                try:
+                    filename = secure_filename(file.filename)
+                    new_event_id = get_new_event_id()
+                    
+                    # Create absolute path for upload directory
+                    current_dir = os.path.dirname(os.path.abspath(__file__))
+                    upload_dir = os.path.join(current_dir, '..', 'static', 'images')
+                    os.makedirs(upload_dir, exist_ok=True)
+                    
+                    # Create filename and paths
+                    filename = f"event_{new_event_id}_{filename}"
+                    file_path = os.path.join(upload_dir, filename)
+                    
+                    # Save file
+                    file.save(file_path)
+                    
+                    # Store relative path in database
+                    cover_photo = f"images/{filename}"
+                    
+                    app.logger.info(f"File saved successfully to {file_path}")
+                    
+                except Exception as e:
+                    app.logger.error(f"Error saving file: {str(e)}")
+                    flash('Error uploading image. Please try again.')
+                    return redirect(url_for('management.draft_event'))
+
+        create_event_draft(name, description, start_time, end_time, session['user_id'], session['user_id'], cover_photo)
         flash('Event drafted successfully! Now add more information to publish it from the management dashboard.')
         return redirect(url_for('customer.my_events'))
     return render_template('management/draft_event.html')
@@ -47,7 +86,38 @@ def edit_event(event_id):
         description = request.form['description']
         start_time = request.form['start_time']
         end_time = request.form['end_time']
-        update_event_draft(event_id, name, description, start_time, end_time, session['user_id'])
+        cover_photo = drafted_event['cover_photo']
+        
+        if 'cover_photo' in request.files:
+            file = request.files['cover_photo']
+            if file and file.filename != '' and allowed_file(file.filename):
+                try:
+                    filename = secure_filename(file.filename)
+                    
+                    # Create absolute path for upload directory
+                    current_dir = os.path.dirname(os.path.abspath(__file__))
+                    upload_dir = os.path.join(current_dir, '..', 'static', 'images')
+                    os.makedirs(upload_dir, exist_ok=True)
+                    
+                    # Create filename and paths
+                    filename = f"event_{event_id}_{filename}"
+                    file_path = os.path.join(upload_dir, filename)
+                    
+                    # Save file
+                    file.save(file_path)
+                    
+                    # Store relative path in database
+                    cover_photo = f"images/{filename}"
+                    
+                    app.logger.info(f"File saved successfully to {file_path}")
+                    
+                except Exception as e:
+                    app.logger.error(f"Error saving file: {str(e)}")
+                    flash('Error uploading image. Please try again.')
+                    return redirect(url_for('management.edit_event', event_id=event_id))
+
+
+        update_event_draft(event_id, name, description, start_time, end_time, session['user_id'], cover_photo)
         flash('Event updated successfully!')
         return redirect(url_for('management.edit_event', event_id=event_id))
     return render_template('management/edit_event.html', drafted_event=drafted_event, cohosts=cohosts, last_updated_by=last_updated_by, event_venue=event_venue, all_venues=all_venues, sessions=sessions)
