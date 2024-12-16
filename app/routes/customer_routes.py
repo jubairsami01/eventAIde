@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from app.models import get_session_details, get_last_registration_id, save_transaction_details, update_user, view_registration_info, get_registered_events, isregistered_event_session, register_user, test, login_user, get_users_events, show_all_venues, get_event_details_for_customer_db, get_event_sessions_db, register_for_event_db, unregister_for_event_db
+from app.models import get_event_venue, get_venue_details, save_chat_message, get_chat_history, get_session_details, get_last_registration_id, save_transaction_details, update_user, view_registration_info, get_registered_events, isregistered_event_session, register_user, test, login_user, get_users_events, show_all_venues, get_event_details_for_customer_db, get_event_sessions_db, register_for_event_db, unregister_for_event_db
 from app.services.ai_services import generate_directions
+from app.tools import llm_response
 
 bp = Blueprint('customer', __name__, url_prefix='/customer')
 
@@ -156,17 +157,181 @@ def dashboard():
 
 
 
-
+"""
 # Live Chat with LLM Assistance
-@bp.route('/chat', methods=['POST'])
-def live_chat():
-    current_location = request.form['current_location']
-    destination = request.form['destination']
-    venue_data = {}  # Replace with actual venue data fetched from the database
-    directions = generate_directions(current_location, destination, venue_data)
-    return {'directions': directions}
+@bp.route('/chat/<event_id>', methods=['GET', 'POST'])
+def chat(event_id):
+    try:
+        # Check if the user is logged in
+        if 'user_id' not in session:
+            return jsonify({'error': 'User not logged in'}), 401
 
+        # Ensure event_id is valid
+        if not event_id:
+            return jsonify({'error': 'Invalid event ID'}), 400
 
+        # Handle GET request: return chat history
+        if request.method == 'GET':
+            user_id = session['user_id']
+            previous_messages = get_chat_history(user_id, event_id)
+            return jsonify(previous_messages), 200
+
+        # Handle POST request: process new message
+        data = request.get_json()
+        if not data or 'message' not in data:
+            return jsonify({'error': 'Missing message'}), 400
+
+        user_id = session['user_id']
+        user_message = data['message']
+
+        # Save user's message to chat history
+        save_chat_message(user_id, event_id, user_message, 'user')
+
+        # Fetch required event details
+        try:
+            event_details = get_event_details_for_customer_db(event_id)
+            sessions = get_event_sessions_db(event_id)
+            venue_details = get_venue_details(event_details['venue_id'])
+            event_venue = get_event_venue(event_id)
+            customized_details = event_venue['customized_details'] if event_venue else {}
+        except Exception as e:
+            return jsonify({'error': f'Failed to fetch event details: {str(e)}'}), 500
+
+        # Prepare input for LLM
+        llm_input = {
+            'event_details': event_details,
+            'sessions': sessions,
+            'venue_details': venue_details,
+            'customized_details': customized_details,
+            'chat_history': get_chat_history(user_id, event_id),
+            'new_message_to_response': user_message
+        }
+
+        # Generate response from LLM
+        try:
+            llm_reply = llm_response(llm_input)
+            save_chat_message(user_id, event_id, llm_reply, 'llm')
+            return jsonify({'response': llm_reply, 'timestamp': datetime.now().isoformat()}), 200
+        except Exception as e:
+            return jsonify({'error': f'LLM processing failed: {str(e)}'}), 500
+
+    except Exception as e:
+        return jsonify({'error': f'Server error: {str(e)}'}), 500
+"""
+
+from functools import wraps
+from typing import Dict, Any
+import logging
+from datetime import datetime
+from flask import jsonify, session, request
+from werkzeug.exceptions import HTTPException
+from cachetools import TTLCache
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+# Custom exceptions
+class ChatException(Exception):
+    def __init__(self, message: str, status_code: int = 500):
+        self.message = message
+        self.status_code = status_code
+        super().__init__(message)
+
+# Cache setup
+event_details_cache = TTLCache(maxsize=100, ttl=300)  # 5 min cache
+
+# Rate limiter
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["100 per minute"]
+)
+
+# Error handler decorator
+def handle_errors(f):
+    @wraps(f)
+    def wrapped(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except ChatException as e:
+            logging.error(f"Chat error: {str(e)}")
+            return jsonify({'error': e.message}), e.status_code
+        except HTTPException as e:
+            logging.error(f"HTTP error: {str(e)}")
+            return jsonify({'error': str(e)}), e.code
+        except Exception as e:
+            logging.error(f"Unexpected error: {str(e)}")
+            return jsonify({'error': 'Internal server error'}), 500
+    return wrapped
+
+def get_cached_event_details(event_id: str) -> Dict[str, Any]:
+    """Get event details with caching"""
+    cache_key = f"event_{event_id}"
+    if cache_key in event_details_cache:
+        return event_details_cache[cache_key]
+    
+    event_details = get_event_details_for_customer_db(event_id)
+    sessions = get_event_sessions_db(event_id)
+    event_venue = get_event_venue(event_id)
+    venue_details = get_venue_details(event_venue['venue_id'])
+    
+    
+    details = {
+        'event_details': event_details,
+        'sessions': sessions,
+        'venue_details': venue_details,
+        'event_venue': event_venue,
+        'customized_details': event_venue.get('customized_details', {})
+    }
+    event_details_cache[cache_key] = details
+    return details
+
+@bp.route('/chat/<event_id>', methods=['GET', 'POST'])
+@limiter.limit("30 per minute")  # Rate limit per user
+@handle_errors
+def chat(event_id: str):
+    # Validate user session
+    if 'user_id' not in session:
+        raise ChatException('User not logged in', 401)
+    
+    if not event_id:
+        raise ChatException('Invalid event ID', 400)
+
+    user_id = session['user_id']
+
+    # Handle GET request
+    if request.method == 'GET':
+        previous_messages = get_chat_history(user_id, event_id)
+        return jsonify(previous_messages), 200
+
+    # Handle POST request
+    data = request.get_json()
+    if not data or not data.get('message'):
+        raise ChatException('Missing message', 400)
+
+    user_message = data['message'].strip()
+    if not user_message:
+        raise ChatException('Empty message', 400)
+
+    # Save user message
+    save_chat_message(user_id, event_id, user_message, 'user')
+
+    # Get cached event details
+    event_info = get_cached_event_details(event_id)
+
+    # Prepare LLM input
+    llm_input = {
+        **event_info,
+        'chat_history': get_chat_history(user_id, event_id),
+        'new_message_to_response': user_message
+    }
+
+    # Generate and save LLM response
+    llm_reply = llm_response(llm_input)
+    save_chat_message(user_id, event_id, llm_reply, 'llm')
+
+    return jsonify({
+        'response': llm_reply,
+        'timestamp': datetime.now().isoformat()
+    }), 200
 
 
 #lab assignment:

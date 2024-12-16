@@ -141,106 +141,138 @@
   <div class="card-body">
 
     {% if session['user'] %}
-
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <div class="page-content page-container" id="page-content">
       <div class="padding">
           <div class="row container d-flex justify-content-center">
-  <div class="col-md-6">
-              <div class="card card-bordered">
-                <div class="card-header">
-                  <h4 class="card-title"><strong>Chat</strong></h4>
-                  <a class="btn btn-xs btn-secondary" href="#" data-abc="true">Let's Chat App</a>
-                </div>
+              <div class="col-md-6">
+                  <meta name="csrf-token" content="your_csrf_token_here">
+                  <div data-event-id="sample_event_id"></div>
+                  <div class="card card-bordered">
+                      <div class="card-header">
+                          <h4 class="card-title"><strong>Chat</strong></h4>
+                      </div>
   
+                      <div class="ps-container ps-theme-default ps-active-y" id="chat-content" style="overflow-y: scroll !important; height:400px !important;">
+                          <!-- Chat messages will be dynamically appended here -->
+                      </div>
   
-                <div class="ps-container ps-theme-default ps-active-y" id="chat-content" style="overflow-y: scroll !important; height:400px !important;">
-                  <div class="media media-chat">
-                    <img class="avatar" src="https://img.icons8.com/color/36/000000/administrator-male.png" alt="...">
-                    <div class="media-body">
-                      <p>Hi</p>
-                      <p>How are you ...???</p>
-                      <p>What are you doing tomorrow?<br> Can we come up a bar?</p>
-                      <p class="meta"><time datetime="2018">23:58</time></p>
-                    </div>
+                      <div class="publisher bt-1 border-light">
+                          <img class="avatar avatar-xs" src="https://img.icons8.com/color/36/000000/administrator-male.png" alt="...">
+                          <input class="publisher-input" type="text" id="chat-input" placeholder="Write something">
+                          <button class="btn btn-primary" id="send-button">Send</button>
+                      </div>
                   </div>
+              </div>
+          </div>
+      </div>
+  </div>
   
-                  <div class="media media-meta-day">Today</div>
-  
-                  <div class="media media-chat media-chat-reverse">
-                    <div class="media-body">
-                      <p>Hiii, I'm good.</p>
-                      <p>How are you doing?</p>
-                      <p>Long time no see! Tomorrow office. will be free on sunday.</p>
-                      <p class="meta"><time datetime="2018">00:06</time></p>
-                    </div>
-                  </div>
-  
-                  <div class="media media-chat">
-                    <img class="avatar" src="https://img.icons8.com/color/36/000000/administrator-male.png" alt="...">
-                    <div class="media-body">
-                      <p>Okay</p>
-                      <p>We will go on sunday? </p>
-                      <p class="meta"><time datetime="2018">00:07</time></p>
-                    </div>
-                  </div>
-  
-                  <div class="media media-chat media-chat-reverse">
-                    <div class="media-body">
-                      <p>That's awesome!</p>
-                      <p>I will meet you Sandon Square sharp at 10 AM</p>
-                      <p>Is that okay?</p>
-                      <p class="meta"><time datetime="2018">00:09</time></p>
-                    </div>
-                  </div>
-  
-                  <div class="media media-chat">
-                    <img class="avatar" src="https://img.icons8.com/color/36/000000/administrator-male.png" alt="...">
-                    <div class="media-body">
-                      <p>Okay i will meet you on Sandon Square </p>
-                      <p class="meta"><time datetime="2018">00:10</time></p>
-                    </div>
-                  </div>
-  
-                  <div class="media media-chat media-chat-reverse">
-                    <div class="media-body">
-                      <p>Do you have pictures of Matley Marriage?</p>
-                      <p class="meta"><time datetime="2018">00:10</time></p>
-                    </div>
-                  </div>
-  
-                  <div class="media media-chat">
-                    <img class="avatar" src="https://img.icons8.com/color/36/000000/administrator-male.png" alt="...">
-                    <div class="media-body">
-                      <p>Sorry I don't have. i changed my phone.</p>
-                      <p class="meta"><time datetime="2018">00:12</time></p>
-                    </div>
-                  </div>
-  
-                  <div class="media media-chat media-chat-reverse">
-                    <div class="media-body">
-                      <p>Okay then see you on sunday!!</p>
-                      <p class="meta"><time datetime="2018">00:12</time></p>
-                    </div>
-                  </div>
-  
-                <div class="ps-scrollbar-x-rail" style="left: 0px; bottom: 0px;"><div class="ps-scrollbar-x" tabindex="0" style="left: 0px; width: 0px;"></div></div><div class="ps-scrollbar-y-rail" style="top: 0px; height: 0px; right: 2px;"><div class="ps-scrollbar-y" tabindex="0" style="top: 0px; height: 2px;"></div></div></div>
-  
-                <div class="publisher bt-1 border-light">
-                  <img class="avatar avatar-xs" src="https://img.icons8.com/color/36/000000/administrator-male.png" alt="...">
-                  <input class="publisher-input" type="text" placeholder="Write something">
-                  <span class="publisher-btn file-group">
-                    <i class="fa fa-paperclip file-browser"></i>
-                    <input type="file">
-                  </span>
-                  <a class="publisher-btn" href="#" data-abc="true"><i class="fa fa-smile"></i></a>
-                  <a class="publisher-btn text-info" href="#" data-abc="true"><i class="fa fa-paper-plane"></i></a>
-                </div>
-  
-               </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const chatContent = document.getElementById('chat-content');
+    const chatInput = document.getElementById('chat-input');
+    const sendButton = document.getElementById('send-button'); // Fixed ID
+    const eventId = '{{ event.event_id }}';
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+    // Append message to chat
+    function appendMessage(message, sender) {
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('media', 'media-chat');
+        if (sender === 'user') {
+            messageElement.classList.add('media-chat-reverse');
+        }
+        
+        messageElement.innerHTML = `
+            <div class="media-body">
+                <p>${message}</p>
+                <p class="meta"><time>${new Date().toLocaleTimeString()}</time></p>
             </div>
-            </div>
-            </div>
-            </div>
+        `;
+        chatContent.appendChild(messageElement);
+        chatContent.scrollTop = chatContent.scrollHeight;
+    }
+
+    // Send message to server
+    // Update the sendMessage function in view_event_details.html
+async function sendMessage(message) {
+    try {
+        console.log('Sending message:', message); // Debug log
+        
+        const response = await fetch(`/customer/chat/${eventId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-Token': csrfToken
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ 
+                message: message,
+                event_id: eventId 
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Server response:', errorData); // Debug log
+            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}
+
+    // Load chat history
+    async function loadChatHistory() {
+        try {
+            const response = await fetch(`/customer/chat/${eventId}`, {
+                headers: {
+                    'X-CSRF-Token': csrfToken
+                }
+            });
+            const messages = await response.json();
+            chatContent.innerHTML = ''; // Clear existing messages
+            messages.forEach(msg => appendMessage(msg.message, msg.sender));
+        } catch (error) {
+            console.error('Error loading chat history:', error);
+            appendMessage('Failed to load chat history.', 'system');
+        }
+    }
+
+    
+
+    // Handle send button click
+    sendButton.addEventListener('click', handleSend);
+
+    // Handle enter key
+    chatInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleSend();
+        }
+    });
+
+    function handleSend() {
+        const message = chatInput.value.trim();
+        if (message) {
+            appendMessage(message, 'user');
+            sendMessage(message);
+            chatInput.value = '';
+        }
+    }
+
+    // Load initial chat history
+    loadChatHistory();
+    setInterval(loadChatHistory, 2000);
+    });
+    </script>
+  
     {%else%}
 
     {%endif%}

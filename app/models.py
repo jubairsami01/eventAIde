@@ -486,6 +486,26 @@ def view_registration_info(event_id, user_id, session_id):
     return registration_info, session_info
     
 
+def save_chat_message(user_id, event_id, message, sender):
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "INSERT INTO Chats (user_id, event_id, message, sender) VALUES (%s, %s, %s, %s)",
+        (user_id, event_id, message, sender)
+    )
+    mysql.connection.commit()
+    cursor.close()
+
+def get_chat_history(user_id, event_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "SELECT message, sender, timestamp FROM Chats WHERE user_id = %s AND event_id = %s ORDER BY timestamp ASC",
+        (user_id, event_id)
+    )
+    chat_history = cursor.fetchall()
+    cursor.close()
+    return chat_history
+
+
 #def add ticket
 
 def update_user_role(user_id, role):
