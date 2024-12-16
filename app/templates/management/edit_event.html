@@ -199,6 +199,7 @@
                         <h5 class="card-title">{{ session.description }}</h5>
                         <p class="card-text">Start Time: {{ session.start_time }}</p>
                         <p class="card-text">End Time: {{ session.end_time }}</p>
+                        <p class="card-text">Registration Fee: {{ session.registration_fee }}</p>
                         <p class="card-text">Capacity: {{ session.capacity }}</p>
                         <button class="btn btn-primary" onclick="toggleUpdateForm('{{ session.session_id }}')">Update Session</button>
                         <a href="{{ url_for('management.delete_session', event_id=drafted_event.event_id, session_id=session.session_id) }}" class="btn btn-danger" onclick="return confirmDeleteSession()">Delete Session</a>
@@ -220,6 +221,10 @@
                             <div class="form-group mt-2">
                                 <label for="end_time">End Time</label>
                                 <input type="datetime-local" class="form-control" id="end_time" name="end_time" value="{{ session.end_time }}" required>
+                            </div>
+                            <div class="form-group mt-2">
+                                <label for="registration_fee">Set Registration Fee</label>
+                                <input type="number" class="form-control" id="registration_fee" name="registration_fee" value="{{ session.registration_fee }}" required>
                             </div>
                             <div class="form-group mt-2">
                                 <label for="capacity">Capacity</label>
@@ -263,6 +268,10 @@
                     <div class="form-group mt-2">
                         <label for="end_time">End Time</label>
                         <input type="datetime-local" class="form-control" id="end_time" name="end_time" required>
+                    </div>
+                    <div class="form-group mt-2">
+                        <label for="registration_fee">Set Registration Fee</label>
+                        <input type="number" class="form-control" id="registration_fee" name="registration_fee" required>
                     </div>
                     <div class="form-group mt-2">
                         <label for="capacity">Capacity</label>

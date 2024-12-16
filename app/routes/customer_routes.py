@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from app.models import update_user, view_registration_info, get_registered_events, isregistered_event_session, register_user, test, login_user, get_users_events, show_all_venues, get_event_details_for_customer_db, get_event_sessions_db, register_for_event_db, unregister_for_event_db
+from app.models import get_session_details, get_last_registration_id, save_transaction_details, update_user, view_registration_info, get_registered_events, isregistered_event_session, register_user, test, login_user, get_users_events, show_all_venues, get_event_details_for_customer_db, get_event_sessions_db, register_for_event_db, unregister_for_event_db
 from app.services.ai_services import generate_directions
 
 bp = Blueprint('customer', __name__, url_prefix='/customer')
@@ -96,13 +96,20 @@ def register_for_event(event_id, session_id):
     if 'user_id' not in session:
         flash('Please log in to register for an event.')
         return redirect(url_for('customer.login'))
-    sessions = get_event_sessions_db(event_id)
+    #sessions = get_event_sessions_db(event_id)
+    session_details = get_session_details(session_id)
     if request.method == 'POST':
-        #session_id = request.form['session_id']
+        payment_method = request.form['payment_method']
+        transaction_id = request.form['transaction_id']
+        registration_fee = session_details['registration_fee']
+
         flashed = register_for_event_db(event_id, session['user_id'], session_id)
+        registration_id = get_last_registration_id()
+        transaction = save_transaction_details(event_id, registration_id, session_id, payment_method, transaction_id, registration_fee)
+        flash(transaction)
         flash(flashed)
         return redirect(url_for('customer.view_event_details', event_id=event_id))
-    return redirect(url_for('customer.view_event_details', event_id=event_id))
+    return render_template('customer/register_for_event.html', session_details=session_details)
 
 @bp.route('/unregister_for_event/<event_id>/<session_id>', methods=['GET', 'POST'])
 def unregister_for_event(event_id, session_id):

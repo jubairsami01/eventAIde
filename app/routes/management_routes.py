@@ -87,7 +87,7 @@ def edit_event(event_id):
         start_time = request.form['start_time']
         end_time = request.form['end_time']
         cover_photo = drafted_event['cover_photo']
-        
+
         if 'cover_photo' in request.files:
             file = request.files['cover_photo']
             if file and file.filename != '' and allowed_file(file.filename):
@@ -217,8 +217,9 @@ def add_session(event_id):
         description = request.form['description']
         start_time = request.form['start_time']
         end_time = request.form['end_time']
+        registration_fee = request.form['registration_fee']
         capacity = request.form['capacity']
-        flashed = add_session_db(event_id, session_name, description, start_time, end_time, capacity)
+        flashed = add_session_db(event_id, session_name, description, start_time, end_time, registration_fee, capacity)
         flash(flashed)
         return redirect(url_for('management.edit_event', event_id=event_id))
     return redirect(url_for('management.edit_event', event_id=event_id))
@@ -236,8 +237,10 @@ def update_session(event_id, session_id):
         description = request.form['description']
         start_time = request.form['start_time']
         end_time = request.form['end_time']
+        registration_fee = request.form['registration_fee']
+        print("registration_fee", registration_fee)
         capacity = request.form['capacity']
-        flashed = update_session_db(session_id, session_name, description, start_time, end_time, capacity)
+        flashed = update_session_db(session_id, session_name, description, start_time, end_time, registration_fee, capacity)
         flash(flashed)
         return redirect(url_for('management.edit_event', event_id=event_id))
     return redirect(url_for('management.edit_event', event_id=event_id))

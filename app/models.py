@@ -3,7 +3,15 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from flask import session
 
-# Example database interaction
+import json
+from datetime import datetime
+
+class DateTimeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return super(DateTimeEncoder, self).default(obj)
+
 
 def register_user(name, email, password):
     cursor = mysql.connection.cursor()
@@ -230,21 +238,21 @@ def delete_event_venue_db(event_id):
     cursor.close()
     return "Venue removed successfully!"
 
-def add_session_db(event_id, name, description, start_time, end_time, capacity):
+def add_session_db(event_id, name, description, start_time, end_time, registration_fee, capacity):
     cursor = mysql.connection.cursor()
     cursor.execute(
-        "INSERT INTO Sessions (event_id, name, description, start_time, end_time, capacity) VALUES (%s, %s, %s, %s, %s, %s)",
-        (event_id, name, description, start_time, end_time, capacity),
+        "INSERT INTO Sessions (event_id, name, description, start_time, end_time, registration_fee, capacity) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+        (event_id, name, description, start_time, end_time, registration_fee, capacity),
     )
     mysql.connection.commit()
     cursor.close()
     return "Session added successfully!"
 
-def update_session_db(session_id, name, description, start_time, end_time, capacity):
+def update_session_db(session_id, name, description, start_time, end_time, registration_fee, capacity):
     cursor = mysql.connection.cursor()
     cursor.execute(
-        "UPDATE Sessions SET name = %s, description = %s, start_time = %s, end_time = %s, capacity = %s WHERE session_id = %s",
-        (name, description, start_time, end_time, capacity, session_id),
+        "UPDATE Sessions SET name = %s, description = %s, start_time = %s, end_time = %s, registration_fee=%s, capacity = %s WHERE session_id = %s",
+        (name, description, start_time, end_time, registration_fee, capacity, session_id),
     )
     mysql.connection.commit()
     cursor.close()
@@ -256,6 +264,13 @@ def delete_session_db(session_id):
     mysql.connection.commit()
     cursor.close()
     return "Session deleted successfully!"
+
+def get_session_details(session_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM Sessions WHERE session_id = %s", (session_id,))
+    session = cursor.fetchone()
+    cursor.close()
+    return session
 
 def get_event_sessions_db(event_id):
     cursor = mysql.connection.cursor()
@@ -364,6 +379,23 @@ def register_for_event_db(event_id, user_id, session_id):
     mysql.connection.commit()
     cursor.close()
     return "Registration successful!"
+    
+def get_last_registration_id():
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT registration_id FROM Registrations ORDER BY registration_id DESC LIMIT 1")
+    registration_id = cursor.fetchone()
+    cursor.close()
+    return registration_id['registration_id']
+
+def save_transaction_details(event_id, registration_id, session_id, payment_method, transaction_id, amount):
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "INSERT INTO Transactions (registration_id, event_id, session_id, payment_method, payment_transaction_id, amount, status) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+        (registration_id, event_id, session_id, payment_method, transaction_id, amount, 'pending')
+    )
+    mysql.connection.commit()
+    cursor.close()
+    return "Transaction successful!"
 
 def unregister_for_event_db(event_id, user_id, session_id):
     cursor = mysql.connection.cursor()
@@ -372,13 +404,31 @@ def unregister_for_event_db(event_id, user_id, session_id):
     if not existing_registration:
         cursor.close()
         return "You are not registered for the selected session of this event!"
+    registration_id = existing_registration['registration_id']
+    cursor.execute("SELECT * FROM Transactions WHERE registration_id = %s", (registration_id,))
+    transaction = cursor.fetchone()
+    transaction_id = transaction['transaction_id']
+    payment_transaction_id = transaction['payment_transaction_id']
+    amount = transaction['amount']
+
+    deleted_registration_details = existing_registration
+    deleted_transaction_details = transaction
+    
+    cursor.execute(
+        "INSERT INTO Refunds (registration_id, transaction_id, payment_transaction_id, user_id, event_id, session_id, amount, status, deleted_registration_details, deleted_transaction_details) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+        (registration_id, transaction_id, payment_transaction_id, user_id, event_id, session_id, amount, 'pending', deleted_registration_details, deleted_transaction_details)
+    )
+    mysql.connection.commit()
+
+    cursor.execute("DELETE FROM Transactions WHERE registration_id = %s", (registration_id,))
+    
     cursor.execute(
         "DELETE FROM Registrations WHERE user_id = %s AND event_id = %s AND session_id = %s",
         (user_id, event_id, session_id),
     )
     mysql.connection.commit()
     cursor.close()
-    return "Unregistration successful!"
+    return "Unregistration successful and refund initiated!"
 
 def isregistered_event_session(event_id, user_id, session_id):
     cursor = mysql.connection.cursor()
