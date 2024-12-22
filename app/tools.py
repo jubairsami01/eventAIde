@@ -30,7 +30,7 @@ import google.generativeai as genai
 def llm_response(llm_input):
     try:
         # Configure the API key
-        genai.configure(api_key='AIzaSyCRqsKLp8KsfmgHOlIAHqqDIB9b0Xpscdo')  # Replace with actual API key
+        genai.configure(api_key='AIzaSyCRqsKLp8KsfmgHOlIAHqqDIB9b0Xpscdo')  # Replace api key with yours
         
         # Initialize the model
         model = genai.GenerativeModel('gemini-pro')  # Use gemini-pro model

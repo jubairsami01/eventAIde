@@ -3,29 +3,46 @@
 
 {% block content %}
 <div class="container">
+    <div class="input-group my-3">
+        <span class="input-group-text" id="searchIcon">🔍</span>
+        <input type="text" class="form-control" id="searchInput" placeholder="Search events..." onkeyup="searchEvents()" aria-label="Search events" aria-describedby="searchIcon">
+    </div>
     {% for event in published_events %}
 
-    <div class="card mt-3">
-        <div class="card-header">
-            {{ event.name }}
+    <a href="{{ url_for('customer.view_event_details', event_id=event.event_id) }}" class="text-decoration-none">
+        <div class="card mt-3 event-card">
+            <div class="card-header">
+                {{ event.name }}
+            </div>
+            <div class="card-body">
+                {% if event.cover_photo %}
+                <img src="{{ url_for('static', filename=event.cover_photo) }}" class="card-img-top" alt="Event Cover Photo">
+                {% endif %}
+                <h5 class="card-title">{{ event.description }}</h5>
+                <p class="card-text">Start Date: {{ event.start_date }}</p>
+                <p class="card-text">End Date: {{ event.end_date }}</p>
+                <p class="card-text">Status: {{ event.status }}</p>
+                <p class="card-text">Created At: {{ event.created_at }}</p>
+                <p class="card-text">Updated At: {{ event.updated_at }}</p>
+                <button class="btn btn-primary">View Details & Register</button>
+            </div>
         </div>
-        <div class="card-body">
-            {% if event.cover_photo %}
-            <img src="{{ url_for('static', filename=event.cover_photo) }}" class="card-img-top" alt="Event Cover Photo">
-            {% endif %}
-            <h5 class="card-title">{{ event.description }}</h5>
-            <p class="card-text">Start Date: {{ event.start_date }}</p>
-            <p class="card-text">End Date: {{ event.end_date }}</p>
-            <p class="card-text">Status: {{ event.status }}</p>
-            <p class="card-text">Created At: {{ event.created_at }}</p>
-            <p class="card-text">Updated At: {{ event.updated_at }}</p>
-            <a href="{{ url_for('customer.view_event_details', event_id=event.event_id) }}" class="btn btn-primary">View Details & Register</a>
-               
-        </div>
-    </div>
+    </a>
 
     {% endfor %}
 </div>
 
+<script>
+function searchEvents() {
+  var input = document.getElementById("searchInput");
+  var filter = input.value.toUpperCase();
+  var cards = document.getElementsByClassName("event-card");
+  for (var i = 0; i < cards.length; i++) {
+    var header = cards[i].querySelector(".card-header");
+    var txtValue = header ? (header.textContent || header.innerText) : "";
+    cards[i].style.display = (txtValue.toUpperCase().indexOf(filter) > -1) ? "" : "none";
+  }
+}
+</script>
 
 {% endblock %}

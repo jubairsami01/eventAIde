@@ -44,6 +44,38 @@ LOCK TABLES `Analytics` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `Chats`
+--
+
+DROP TABLE IF EXISTS `Chats`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `Chats` (
+  `chat_id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `event_id` int NOT NULL,
+  `message` text NOT NULL,
+  `sender` enum('user','llm') NOT NULL,
+  `timestamp` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`chat_id`),
+  KEY `user_id` (`user_id`),
+  KEY `event_id` (`event_id`),
+  CONSTRAINT `chats_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `Users` (`user_id`),
+  CONSTRAINT `chats_ibfk_2` FOREIGN KEY (`event_id`) REFERENCES `Events` (`event_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `Chats`
+--
+
+LOCK TABLES `Chats` WRITE;
+/*!40000 ALTER TABLE `Chats` DISABLE KEYS */;
+INSERT INTO `Chats` VALUES (1,5,1,'hello','user','2024-12-16 17:51:24'),(2,5,1,'hello','user','2024-12-16 17:55:12'),(3,5,1,'hello','user','2024-12-16 17:56:18'),(4,5,1,'hello','user','2024-12-16 17:57:39'),(5,5,1,'hii','user','2024-12-16 18:03:04'),(6,5,1,'How can I help you with the event planning?','llm','2024-12-16 18:03:07'),(7,5,1,'where is the event location?','user','2024-12-16 18:04:01'),(8,5,1,'The event will be held at Bracu, located at Merul Badda.','llm','2024-12-16 18:04:04'),(9,5,1,'total number of registrations in the event?','user','2024-12-16 18:13:17'),(10,5,1,'7','llm','2024-12-16 18:13:20'),(11,5,1,'who updated the event last?','user','2024-12-16 18:23:25'),(12,5,1,'sami','llm','2024-12-16 18:23:28'),(13,5,1,'how many sessions are there?','user','2024-12-16 18:27:31'),(14,5,1,'5','llm','2024-12-16 18:27:34'),(15,5,1,'how many seats left for photo session?','user','2024-12-16 18:28:51'),(16,5,1,'There are 98 seats left for the photo session. The photo session will be held on December 17, 2024 from 2:43 PM to 5:43 PM at Bracu, Merul Badda. The capacity for the photo session is 100 and there are currently 2 people registered.','llm','2024-12-16 18:28:54'),(17,5,1,'when will be movie screening take place?','user','2024-12-16 18:31:07'),(18,5,1,'The movie screening will take place on December 11, 2024 from 12:43 PM to 12:43 PM at the event venue, Bracu.','llm','2024-12-16 18:31:10'),(19,2,14,'where is the event location?','user','2024-12-16 18:47:24'),(20,2,14,'The event will be held at Bracu, Merul Badda.','llm','2024-12-16 18:47:27');
+/*!40000 ALTER TABLE `Chats` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `CoHosts`
 --
 
@@ -134,7 +166,7 @@ CREATE TABLE `Events` (
   KEY `fk_last_updated_by` (`last_updated_by`),
   CONSTRAINT `Events_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `Users` (`user_id`),
   CONSTRAINT `fk_last_updated_by` FOREIGN KEY (`last_updated_by`) REFERENCES `Users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -235,7 +267,7 @@ CREATE TABLE `Registrations` (
   CONSTRAINT `Registrations_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `Users` (`user_id`),
   CONSTRAINT `Registrations_ibfk_2` FOREIGN KEY (`event_id`) REFERENCES `Events` (`event_id`),
   CONSTRAINT `Registrations_ibfk_3` FOREIGN KEY (`session_id`) REFERENCES `Sessions` (`session_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -244,7 +276,7 @@ CREATE TABLE `Registrations` (
 
 LOCK TABLES `Registrations` WRITE;
 /*!40000 ALTER TABLE `Registrations` DISABLE KEYS */;
-INSERT INTO `Registrations` VALUES (13,2,1,5,'pending','2024-12-10 17:37:10'),(17,3,1,5,'pending','2024-12-10 17:43:48'),(18,3,1,3,'pending','2024-12-10 17:49:29'),(21,2,5,10,'pending','2024-12-10 19:23:26'),(22,2,1,4,'pending','2024-12-11 08:17:53'),(24,2,3,1,'pending','2024-12-11 16:59:26'),(25,2,1,3,'pending','2024-12-15 09:13:34'),(26,2,1,6,'pending','2024-12-15 09:41:22');
+INSERT INTO `Registrations` VALUES (13,2,1,5,'pending','2024-12-10 17:37:10'),(17,3,1,5,'pending','2024-12-10 17:43:48'),(18,3,1,3,'pending','2024-12-10 17:49:29'),(21,2,5,10,'pending','2024-12-10 19:23:26'),(22,2,1,4,'pending','2024-12-11 08:17:53'),(24,2,3,1,'pending','2024-12-11 16:59:26'),(25,2,1,3,'pending','2024-12-15 09:13:34'),(26,2,1,6,'pending','2024-12-15 09:41:22'),(30,5,14,13,'pending','2024-12-16 15:07:40'),(31,5,1,6,'pending','2024-12-16 15:21:30');
 /*!40000 ALTER TABLE `Registrations` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -366,7 +398,7 @@ CREATE TABLE `Transactions` (
   CONSTRAINT `transactions_ibfk_1` FOREIGN KEY (`registration_id`) REFERENCES `Registrations` (`registration_id`),
   CONSTRAINT `transactions_ibfk_2` FOREIGN KEY (`event_id`) REFERENCES `Events` (`event_id`),
   CONSTRAINT `transactions_ibfk_3` FOREIGN KEY (`session_id`) REFERENCES `Sessions` (`session_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -375,6 +407,7 @@ CREATE TABLE `Transactions` (
 
 LOCK TABLES `Transactions` WRITE;
 /*!40000 ALTER TABLE `Transactions` DISABLE KEYS */;
+INSERT INTO `Transactions` VALUES (4,30,14,13,'bkash','djflkdjkllfksk',100.00,'pending','2024-12-16 15:07:41','2024-12-16 15:07:41'),(5,31,1,6,'bkash','lsjflksdfl',0.00,'pending','2024-12-16 15:21:30','2024-12-16 15:21:30');
 /*!40000 ALTER TABLE `Transactions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -446,4 +479,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-12-16 19:16:27
+-- Dump completed on 2024-12-17  1:03:23

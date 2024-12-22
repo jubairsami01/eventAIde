@@ -150,7 +150,7 @@
                   <div data-event-id="sample_event_id"></div>
                   <div class="card card-bordered">
                       <div class="card-header">
-                          <h4 class="card-title"><strong>Chat</strong></h4>
+                          <h4 class="card-title"><strong>Get any info regarding the event</strong></h4>
                       </div>
   
                       <div class="ps-container ps-theme-default ps-active-y" id="chat-content" style="overflow-y: scroll !important; height:400px !important;">
@@ -177,7 +177,7 @@
     const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
     // Append message to chat
-    function appendMessage(message, sender) {
+    function appendMessage(message, sender, timestamp) {
         const messageElement = document.createElement('div');
         messageElement.classList.add('media', 'media-chat');
         if (sender === 'user') {
@@ -187,8 +187,8 @@
         messageElement.innerHTML = `
             <div class="media-body">
                 <p>${message}</p>
-                <p class="meta"><time>${new Date().toLocaleTimeString()}</time></p>
-            </div>
+                
+            <span class="meta"><time>${timestamp}</time></span></div>
         `;
         chatContent.appendChild(messageElement);
         chatContent.scrollTop = chatContent.scrollHeight;
@@ -238,7 +238,7 @@ async function sendMessage(message) {
             });
             const messages = await response.json();
             chatContent.innerHTML = ''; // Clear existing messages
-            messages.forEach(msg => appendMessage(msg.message, msg.sender));
+            messages.forEach(msg => appendMessage(msg.message, msg.sender, msg.timestamp));
         } catch (error) {
             console.error('Error loading chat history:', error);
             appendMessage('Failed to load chat history.', 'system');

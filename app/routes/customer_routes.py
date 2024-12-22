@@ -237,7 +237,7 @@ class ChatException(Exception):
         super().__init__(message)
 
 # Cache setup
-event_details_cache = TTLCache(maxsize=100, ttl=300)  # 5 min cache
+event_details_cache = TTLCache(maxsize=100, ttl=300)  # 5 min cache = 300 seconds
 
 # Rate limiter
 limiter = Limiter(
@@ -323,7 +323,7 @@ def chat(event_id: str):
         'chat_history': get_chat_history(user_id, event_id),
         'new_message_to_response': user_message
     }
-
+    #print(llm_input)
     # Generate and save LLM response
     llm_reply = llm_response(llm_input)
     save_chat_message(user_id, event_id, llm_reply, 'llm')
@@ -332,6 +332,15 @@ def chat(event_id: str):
         'response': llm_reply,
         'timestamp': datetime.now().isoformat()
     }), 200
+
+
+
+
+
+
+
+
+
 
 
 #lab assignment:
