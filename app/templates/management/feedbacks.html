@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}eventAIde : Feedbacks on {{event.event_name}}{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  
+    <h2>Event Details</h2>
+    <br>
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">{{ event.event_name }}</h4>
+        {% if event.cover_photo %}
+          <img src="{{ url_for('static', filename=event.cover_photo) }}" class="card-img-top" alt="Event Cover Photo">
+          {% endif %}
+        <br>
+        <br>
+        <p class="card-text"><strong>Description: </strong>{{ event.description }}</p>
+        <br>
+        <p class="card-text"><strong>Location:</strong></p>
+        <div id="map" style="height: 300px;"></div>
+                  <link href='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css' rel='stylesheet' />
+                  <script src='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js'></script>
+                  <script>
+                      document.addEventListener('DOMContentLoaded', function() {
+                          const locationArray = '{{ event.venue_location_data }}'.split(',');
+                          const latitude = locationArray[1];
+                          const longitude = locationArray[0];
+                          mapboxgl.accessToken = 'pk.eyJ1IjoianViYWlyc2FtaSIsImEiOiJjbTBjMmdoanQwZml2MmtvZHVsOG94dnowIn0.hTL8zltp0H6c8pVfzlzkiA';
+                          const map = new mapboxgl.Map({
+                              container: 'map',
+                              style: 'mapbox://styles/mapbox/streets-v11',
+                              center: [longitude, latitude],
+                              zoom: 12
+                          });
+  
+                          new mapboxgl.Marker()
+                              .setLngLat([longitude, latitude])
+                              .addTo(map);
+                      });
+                  </script>
+        <br>
+        <p class="card-text"><strong>Start Date:</strong> {{ event.start_date }}</p>
+        <p class="card-text"><strong>End Date:</strong> {{ event.end_date }}</p>
+        <p class="card-text"><strong>Venue:</strong> {{ event.venue_name }}</p>
+        <p class="card-text"><strong>Address:</strong> {{ event.venue_address }}</p>
+        <p class="card-text"><strong>Total Registrations:</strong> {{ event.number_of_registrations }}</p>
+        <p class="card-text"><strong>Total Sessions:</strong> {{ event.number_of_sessions }}</p>
+        <p class="card-text"><strong>Created By:</strong> {{ event.created_by }}</p>
+        <p class="card-text"><strong>Status:</strong> {{ event.status }}</p>
+        <p class="card-text"><strong>Created At:</strong> {{ event.created_at }}</p>
+        <p class="card-text"><strong>Updated At:</strong> {{ event.updated_at }}</p>
+        <p class="card-text"><strong>Last Updated By:</strong> {{ event.last_updated_by }}</p>
+        <button class="btn btn-success mt-2" onclick="openGoogleMaps('{{ event.venue_location_data }}')">Open Location Direction in Google Map</button>
+      </div>
+    </div>
+      <script>
+        function openGoogleMaps(location) {
+            const locationArray = location.split(',');
+            const latitude = locationArray[1];
+            const longitude = locationArray[0];
+            const baseUrl = 'https://www.google.com/maps/dir/?api=1&destination=';
+            const url = baseUrl + latitude + ',' + longitude;
+            window.open(url, '_blank');
+        }
+    </script>
+
+
+<div class="feedbacks">
+    <h3>Feedbacks</h3>
+    {% for feedback in feedbacks %}
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    Rating: {{ feedback.rating }} / 5
+                    <span class="response-status {% if feedback.is_responded %}responded{% else %}not-responded{% endif %}">
+                        {{ 'Responded' if feedback.is_responded else 'Not Responded' }}
+                    </span>
+                </h5>
+                <p class="card-text">{{ feedback.comment }}</p>
+                <p class="card-text"><small class="text-muted">Submitted by {{ feedback.user_name }} on {{ feedback.created_at }}</small></p>
+                <div class="d-flex justify-content-between">
+                    <button class="btn btn-primary" onclick="sendEmail('{{ feedback.user_email }}')">Send an Email to User</button>
+                    <script>
+                        function sendEmail(email) {
+                            window.location.href = `mailto:${email}`;
+                        }
+                    </script>
+                    {% set response_status = '0' if feedback.is_responded else '1' %}
+                    <form method="POST" action="{{ url_for('management.change_feedback_response_status', event_id=event.event_id, feedback_id=feedback.feedback_id, status=response_status) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-secondary">
+                            Mark as {{ 'Unresponded' if feedback.is_responded else 'Responded' }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<style>
+.response-status {
+    float: right;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+.responded {
+    background: #d4edda;
+    color: #155724;
+}
+.not-responded {
+    background: #f8d7da;
+    color: #721c24;
+}
+</style>
+
+
+
+{% endblock %}

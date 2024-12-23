@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from app.models import get_new_event_id, unpublish_event_db, add_session_db, get_event_sessions_db, create_event_draft, get_users_events, get_event_draft, update_event_draft, add_cohost_db, get_cohosts, remove_cohost_db, get_user_by_id, delete_event_db, add_venue_db, update_venue_db, get_event_venue, get_venue_details, show_all_venues, add_event_venue_db, update_event_venue_db, delete_event_venue_db, update_session_db, delete_session_db, publish_event_db, set_event_status_db
+from app.models import change_feedback_response_status_db, get_new_event_id, get_user_name_by_id, show_all_feedbacks, get_event_details_for_customer_db, unpublish_event_db, add_session_db, get_event_sessions_db, create_event_draft, get_users_events, get_event_draft, update_event_draft, add_cohost_db, get_cohosts, remove_cohost_db, get_user_by_id, delete_event_db, add_venue_db, update_venue_db, get_event_venue, get_venue_details, show_all_venues, add_event_venue_db, update_event_venue_db, delete_event_venue_db, update_session_db, delete_session_db, publish_event_db, set_event_status_db, get_analytics_for_user_events
 #from app.models import get_event_by_id, update_event
 from app.tools import string_to_json, json_to_string
 import os
@@ -262,6 +262,36 @@ def set_event_status(event_id, status):
     flashed = set_event_status_db(event_id, status)
     flash(flashed)
     return redirect(url_for('management.edit_event', event_id=event_id))
+
+@bp.route('/analytics')
+def analytics():
+    if 'user_id' not in session:
+        flash('Please log in to see analytics.')
+        return redirect(url_for('customer.login'))
+    data = get_analytics_for_user_events(session['user_id'])
+    return render_template('management/analytics.html', analytics_data=data)
+
+@bp.route('/feedbacks/<event_id>')
+def feedbacks(event_id):
+    if 'user_id' not in session:
+        flash('Please log in to see feedbacks.')
+        return redirect(url_for('customer.login'))
+    feedbacks = show_all_feedbacks(event_id)
+    for feedback in feedbacks:
+        user = get_user_by_id(feedback['user_id'])
+        feedback['user_name'] = user['name']
+        feedback['user_email'] = user['email']
+    event = get_event_details_for_customer_db(event_id)
+    return render_template('management/feedbacks.html', feedbacks=feedbacks, event=event)
+
+@bp.route('/change_feedback_response_status/<event_id>/<feedback_id>/<status>', methods=['POST'])
+def change_feedback_response_status(feedback_id, status, event_id):
+    if 'user_id' not in session:
+        flash('Please log in to change feedback response status.')
+        return redirect(url_for('customer.login'))
+    flashed = change_feedback_response_status_db(feedback_id, status)
+    flash(flashed)
+    return redirect(url_for('management.feedbacks', event_id=event_id))
 
 #analyze from the follwoing
 """

@@ -5,7 +5,7 @@
 
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-9">
+        <div class="col-md-12">
             <h2>My Events</h2>
             <p>Here are the events you have created or are a co-host for.</p>
             <table class="table">
@@ -29,6 +29,7 @@
                         <td>{{ event.visibility }}</td>
                         <td>
                             <a href="{{ url_for('management.edit_event', event_id=event.event_id) }}" class="btn btn-primary">Edit</a>
+                            <a href="{{ url_for('management.feedbacks', event_id=event.event_id) }}" class="btn btn-secondary">View Feedbacks</a>
                             <a href="{{ url_for('management.delete_event', event_id=event.event_id) }}" class="btn btn-danger" onclick="return confirmDelete()">Delete</a>
                         </td>
                     </tr>

@@ -323,6 +323,14 @@ def get_user_by_id(user_id):
     cursor.close()
     return user
 
+def get_user_name_by_id(user_id):
+    """Retrieve a user by their unique ID."""
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT name FROM Users WHERE user_id = %s", (user_id,))
+    user = cursor.fetchone()
+    cursor.close()
+    return user
+
 def get_event_details_for_customer_db(event_id):
     """Retrieve detailed event information including venue and counts."""
     cursor = mysql.connection.cursor()
@@ -520,6 +528,81 @@ def test():
     testt = cursor.fetchall()
     cursor.close()
     return testt
+
+def get_analytics_for_user_events(user_id):
+    cursor = mysql.connection.cursor()
+    query = """
+    SELECT 
+        e.event_id,
+        e.name,
+        (SELECT COUNT(*) FROM Registrations r WHERE r.event_id = e.event_id) AS total_registrations,
+        (SELECT COUNT(*) FROM Sessions s WHERE s.event_id = e.event_id) AS total_sessions,
+        IFNULL((
+            SELECT SUM(sessions.registration_fee) 
+            FROM Sessions sessions
+            JOIN Registrations regs ON sessions.session_id = regs.session_id
+            WHERE sessions.event_id = e.event_id
+        ), 0) AS total_revenue
+    FROM Events e
+    LEFT JOIN CoHosts c ON e.event_id = c.event_id
+    WHERE e.created_by = %s OR c.user_id = %s
+    GROUP BY e.event_id
+    """
+    cursor.execute(query, (user_id, user_id))
+    data = cursor.fetchall()
+    cursor.close()
+    return data
+
+def add_feedback_db(user_id, event_id, rating, comment=None):
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "INSERT INTO EventFeedbacks (user_id, event_id, rating, comment) VALUES (%s, %s, %s, %s)",
+        (user_id, event_id, rating, comment)
+    )
+    mysql.connection.commit()
+    cursor.close()
+    return "Feedback added successfully!"
+
+def delete_feedback_db(feedback_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("DELETE FROM EventFeedbacks WHERE feedback_id = %s", (feedback_id,))
+    mysql.connection.commit()
+    cursor.close()
+    return "Feedback deleted successfully!"
+
+def update_feedback_db(user_id, event_id, rating, comment):
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "UPDATE EventFeedbacks SET rating = %s, comment = %s WHERE user_id = %s AND event_id = %s",
+        (rating, comment, user_id, event_id)
+    )
+    mysql.connection.commit()
+    cursor.close()
+    return "Feedback updated successfully!"
+
+def load_existing_feedback(user_id, event_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "SELECT * FROM EventFeedbacks WHERE user_id = %s AND event_id = %s",
+        (user_id, event_id)
+    )
+    feedback = cursor.fetchone()
+    cursor.close()
+    return feedback
+
+def show_all_feedbacks(event_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM EventFeedbacks WHERE event_id = %s ORDER BY created_at DESC", (event_id,))
+    feedbacks = cursor.fetchall()
+    cursor.close()
+    return feedbacks
+
+def change_feedback_response_status_db(feedback_id, status):
+    cursor = mysql.connection.cursor()
+    cursor.execute("UPDATE EventFeedbacks SET is_responded = %s WHERE feedback_id = %s", (status, feedback_id,))
+    mysql.connection.commit()
+    cursor.close()
+    return "Feedback response status updated successfully!"
 
 
 #lab assignment:

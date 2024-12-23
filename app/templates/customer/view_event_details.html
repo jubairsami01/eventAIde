@@ -274,8 +274,62 @@ async function sendMessage(message) {
     </script>
   
     {%else%}
-
+    <p>Please <a href="{{ url_for('customer.login') }}">login</a> to chat with AI bot to get detailed info.</p>
     {%endif%}
+  </div>
+</div>
+<br>
+<div>
+    <h2>Leave Your Feedback</h2>
+    <br>
+    <div class="card">
+      <div class="card-body">
+        {% if session['user'] %}
+          <form action="{{ url_for('customer.add_feedback', event_id=event.event_id) }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+              <label for="rating" class="form-label">Rating:</label>
+              <div class="rating">
+                {% for i in range(5, 0, -1) %}
+                  <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}" {% if feedback and feedback.rating == i %}checked{% endif %}>
+                  <label for="star{{ i }}" title="{{ i }} stars">&#9733;</label>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="comment" class="form-label">Comment:</label>
+              <textarea class="form-control" id="comment" name="comment" rows="3">{{ feedback.comment if feedback else '' }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Feedback</button>
+          </form>
+        {% else %}
+          <p>Please <a href="{{ url_for('customer.login') }}">login</a> to leave feedback.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <style>
+      .rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: center;
+      }
+      .rating input {
+        display: none;
+      }
+      .rating label {
+        font-size: 2rem;
+        color: #ddd;
+        cursor: pointer;
+      }
+      .rating input:checked ~ label {
+        color: #f5b301;
+      }
+      .rating label:hover,
+      .rating label:hover ~ label {
+        color: #f5b301;
+      }
+    </style>
 
   </div>
 </div>

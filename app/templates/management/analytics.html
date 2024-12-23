@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}eventAIde : Event Analytics{% endblock %}
+
+{% block content %}
+<h2>Event Analytics</h2>
+{% if analytics_data %}
+<div class="table-responsive"></div>
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="table-light">
+            <tr>
+                <th scope="col">Event</th>
+                <th scope="col">Registrations</th>
+                <th scope="col">Sessions</th>
+                <th scope="col">Total Revenue</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for row in analytics_data %}
+            <tr>
+                <td>{{ row.name }}</td>
+                <td>{{ row.total_registrations }}</td>
+                <td>{{ row.total_sessions }}</td>
+                <td>{{ row.total_revenue }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>No analytics data found.</p>
+{% endif %}
+{% endblock %}

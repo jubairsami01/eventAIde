@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from app.models import get_event_venue, get_venue_details, save_chat_message, get_chat_history, get_session_details, get_last_registration_id, save_transaction_details, update_user, view_registration_info, get_registered_events, isregistered_event_session, register_user, test, login_user, get_users_events, show_all_venues, get_event_details_for_customer_db, get_event_sessions_db, register_for_event_db, unregister_for_event_db
+from app.models import get_event_venue, get_venue_details, save_chat_message, get_chat_history, get_session_details, get_last_registration_id, save_transaction_details, update_user, view_registration_info, get_registered_events, isregistered_event_session, register_user, test, login_user, get_users_events, show_all_venues, get_event_details_for_customer_db, get_event_sessions_db, register_for_event_db, unregister_for_event_db, add_feedback_db, delete_feedback_db, update_feedback_db, show_all_feedbacks, load_existing_feedback
 from app.services.ai_services import generate_directions
 from app.tools import llm_response
 
@@ -88,10 +88,11 @@ def view_event_details(event_id):
     event = get_event_details_for_customer_db(event_id)
     sessions = get_event_sessions_db(event_id)
     if 'user_id' in session:
+        feedback = load_existing_feedback(session['user_id'], event_id)
         for s in sessions:
             s['is_registered'] = isregistered_event_session(event_id, session['user_id'], s['session_id'])
+        return render_template('customer/view_event_details.html', event=event, sessions=sessions, feedback=feedback)
     return render_template('customer/view_event_details.html', event=event, sessions=sessions)
-
 @bp.route('/register_for_event/<event_id>/<session_id>', methods=['GET', 'POST'])
 def register_for_event(event_id, session_id):
     if 'user_id' not in session:
@@ -156,68 +157,7 @@ def dashboard():
     return render_template('customer/dashboard.html', testt = testt) #, events=events
 
 
-
-"""
-# Live Chat with LLM Assistance
-@bp.route('/chat/<event_id>', methods=['GET', 'POST'])
-def chat(event_id):
-    try:
-        # Check if the user is logged in
-        if 'user_id' not in session:
-            return jsonify({'error': 'User not logged in'}), 401
-
-        # Ensure event_id is valid
-        if not event_id:
-            return jsonify({'error': 'Invalid event ID'}), 400
-
-        # Handle GET request: return chat history
-        if request.method == 'GET':
-            user_id = session['user_id']
-            previous_messages = get_chat_history(user_id, event_id)
-            return jsonify(previous_messages), 200
-
-        # Handle POST request: process new message
-        data = request.get_json()
-        if not data or 'message' not in data:
-            return jsonify({'error': 'Missing message'}), 400
-
-        user_id = session['user_id']
-        user_message = data['message']
-
-        # Save user's message to chat history
-        save_chat_message(user_id, event_id, user_message, 'user')
-
-        # Fetch required event details
-        try:
-            event_details = get_event_details_for_customer_db(event_id)
-            sessions = get_event_sessions_db(event_id)
-            venue_details = get_venue_details(event_details['venue_id'])
-            event_venue = get_event_venue(event_id)
-            customized_details = event_venue['customized_details'] if event_venue else {}
-        except Exception as e:
-            return jsonify({'error': f'Failed to fetch event details: {str(e)}'}), 500
-
-        # Prepare input for LLM
-        llm_input = {
-            'event_details': event_details,
-            'sessions': sessions,
-            'venue_details': venue_details,
-            'customized_details': customized_details,
-            'chat_history': get_chat_history(user_id, event_id),
-            'new_message_to_response': user_message
-        }
-
-        # Generate response from LLM
-        try:
-            llm_reply = llm_response(llm_input)
-            save_chat_message(user_id, event_id, llm_reply, 'llm')
-            return jsonify({'response': llm_reply, 'timestamp': datetime.now().isoformat()}), 200
-        except Exception as e:
-            return jsonify({'error': f'LLM processing failed: {str(e)}'}), 500
-
-    except Exception as e:
-        return jsonify({'error': f'Server error: {str(e)}'}), 500
-"""
+# Chatbot
 
 from functools import wraps
 from typing import Dict, Any
@@ -334,7 +274,24 @@ def chat(event_id: str):
     }), 200
 
 
-
+@bp.route('/add_feedback/<event_id>', methods=['GET', 'POST'])
+def add_feedback(event_id):
+    if 'user_id' not in session:
+        flash('Please log in to register for an event.')
+        return redirect(url_for('customer.login'))
+    if request.method == 'POST':
+        rating = request.form['rating']
+        comment = request.form.get('comment', None)
+        user_id = session['user_id']
+        
+        existing_feedback = load_existing_feedback(user_id, event_id)
+        if existing_feedback:
+            feedback_message = update_feedback_db(user_id, event_id, rating, comment)
+        else:
+            feedback_message = add_feedback_db(user_id, event_id, rating, comment)
+        
+        flash(feedback_message)
+    return redirect(url_for('customer.view_event_details', event_id=event_id))
 
 
 
