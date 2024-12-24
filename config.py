@@ -22,6 +22,8 @@ import os
 GRANT ALL PRIVILEGES ON eventaide_db.* TO 'root2'@'localhost';
 FLUSH PRIVILEGES;
 EXIT;"""
+#to connect the local machine server on my laptop:
+"""
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'a_secret_key'
     MYSQL_HOST = '127.0.0.1'
@@ -31,3 +33,19 @@ class Config:
     SESSION_TYPE = 'filesystem'
     MYSQL_CURSORCLASS = "DictCursor"
     MYSQL_PORT = 3306
+"""
+
+#to connect the remote server:
+class Config:
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'a_secret_key'
+    MYSQL_HOST = 'eventaidedb-eventaidedb.h.aivencloud.com'
+    MYSQL_USER = 'avnadmin'
+    MYSQL_PASSWORD = 'AVNS_7LCskFyOhLpyOVZmH88'
+    MYSQL_DB = 'eventaide_db'
+    MYSQL_PORT = 18570
+    SESSION_TYPE = 'filesystem'
+    MYSQL_CURSORCLASS = "DictCursor"
+    MYSQL_CONNECT_TIMEOUT = 10
+    MYSQL_READ_TIMEOUT = 10
+    MYSQL_WRITE_TIMEOUT = 10
+    MYSQL_CHARSET = "utf8mb4"

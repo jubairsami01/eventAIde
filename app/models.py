@@ -310,7 +310,7 @@ def set_event_status_db(event_id, status):
 
 def get_all_published_events():
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT * FROM events where visibility = 'public'")
+    cursor.execute("SELECT * FROM Events where visibility = 'public'")
     events = cursor.fetchall()
     cursor.close()
     return events
