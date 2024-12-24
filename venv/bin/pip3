@@ -1,4 +1,6 @@
-#!/workspaces/eventAIde/venv/bin/python3
+#!/bin/sh
+'''exec' "/Users/jubair/My Drive (kmjubairsami2@gmail.com)/Personal Codes/CSE471 Project/eventAIde/venv/bin/python3.11" "$0" "$@"
+' '''
 # -*- coding: utf-8 -*-
 import re
 import sys
