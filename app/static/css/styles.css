@@ -15,6 +15,13 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'Inter_bold';
+  src: url('/static/fonts/Inter-Bold.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+}
+
 .card-bordered {
   border: 1px solid #ebebeb;
 }
@@ -502,23 +509,41 @@ button, input, optgroup, select, textarea {
 
 
 .text-pink {
-    color: #ffb6c1 !important;
+    color: #C68BB7 !important;
 }
 .bg-pink {
-    background-color: #ffb6c1 !important;
+    background-color: #C68BB7 !important;
 }
 .event-card {
-    border: none;
-    border-radius: 15px;
-    overflow: hidden;
+  border: none;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: none; 
 }
+
+.event-card .text-end {
+    font-family: Inter_bold;
+    color: #0C1B32;
+    font-size: 1.2rem;
+    text-transform: capitalize;
+  
+}
+.event-card .card-title{
+    font-family: Inter_bold;
+    text-transform: capitalize;
+    font-size: 1.5rem;
+    position: relative;
+}
+
 .event-card img {
-    height: 150px;
-    width: 100%;
-    border-radius: 0 0 30px 30px;
-    padding: -10px;
-    object-fit: cover;
+  height: 150px;
+  width: 100%;
+  border-radius: 0 0 15px 15px;
+  object-fit: cover;
+  margin: 0;
+  padding: 0; 
 }
+
 .event-card .badge {
 background-color: #E7C8D7 ;
 color: #0C1B32;
@@ -532,6 +557,11 @@ top: 10px;
 right: 10px;
 line-height: 1;
 }
+
+.event-card, .card-img-top {
+  margin: 0;
+}
+
 
 /* Base styling for the dropdown */
 .nav-item.dropdown {
@@ -583,5 +613,55 @@ line-height: 1;
   height: 1px;
   margin: 0.5rem 0;
   overflow: hidden;
-  background-color: rgba(0, 0, 0, 0.15);
+  background-color: #000000;
 }
+
+
+
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+.hero-section {
+  background-color: #0C1B32;
+  color: #C68BB7; 
+  padding: 50px 20px;
+  width: 100%; 
+  box-sizing: border-box; 
+}
+
+.hero-container {
+  max-width: 1200px; 
+  margin: 0 auto; 
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap; 
+}
+
+.logo-img {
+  width: 500px; 
+  height: auto;
+}
+
+.slash h1 {
+  font-size: 40rem;
+  font-weight: 1;
+  margin-bottom: 150px;
+}
+
+.tagline h1 {
+  font-family: 'JetBrains Mono', sans-serif; 
+  font-size: 6rem;
+  margin: 0;
+}
+
+.tagline p {
+  font-family: 'Inter', sans-serif; 
+  font-size: 2.5rem;
+  margin: 5px 0 0;
+}
+
