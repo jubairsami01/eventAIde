@@ -2,33 +2,35 @@
 {% block title %}eventAIde : Draft New Event{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container-fluid text-light p-3 text-center">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <h2>Draft New Event</h2>
+
+                <h2>Draft New Events</h2>    
+            
             <form action="{{ url_for('management.draft_event') }}" method="post" enctype="multipart/form-data" id="draftEventForm">
                 <div class="form-group">
-                    <label for="name">Event Name</label>
+                    <label for="name" class="form-group">Event Name</label>
                     <input type="text" class="form-control" id="name" name="name" required>
                 </div>
                 <div class="form-group mt-2">
-                    <label for="description">Description</label>
+                    <label for="description" class="form-group">Description</label>
                     <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
                 </div>
-                <div class="form-group mt-2">
-                    <label for="start_time">Start Time</label>
+                <div class="form-group">
+                    <label for="start_time" class="form-group">Start Time</label>
                     <input type="datetime-local" class="form-control" id="start_time" name="start_time" required>
                 </div>
-                <div class="form-group mt-2">
-                    <label for="end_time">End Time</label>
+                <div class="form-group">
+                    <label for="end_time" class="form-group">End Time</label>
                     <input type="datetime-local" class="form-control" id="end_time" name="end_time" required>
                 </div>
-                <div class="form-group mt-2">
-                    <label for="cover_photo">Cover Photo</label>
+                <div class="form-group">
+                    <label for="cover_photo" class="form-group">Cover Photo</label>
                     <input type="file" class="form-control" id="cover_photo" name="cover_photo">
                 </div>
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="btn btn-primary mt-2">Draft Event</button>
+                <button type="submit" class="login-button">Draft Event</button>
             </form>
             
     </div>

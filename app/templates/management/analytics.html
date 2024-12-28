@@ -2,10 +2,10 @@
 {% block title %}eventAIde : Event Analytics{% endblock %}
 
 {% block content %}
-<h2>Event Analytics</h2>
+<h2>Event Analytics</h2> 
 {% if analytics_data %}
 <div class="table-responsive"></div>
-    <table class="table table-striped table-hover table-bordered">
+    <table class="table modified-table">
         <thead class="table-light">
             <tr>
                 <th scope="col">Event</th>
@@ -27,6 +27,6 @@
     </table>
 </div>
 {% else %}
-<p>No analytics data found.</p>
+<p class="text-pink mb-4 text-center">No analytics data found.</p>
 {% endif %}
 {% endblock %}

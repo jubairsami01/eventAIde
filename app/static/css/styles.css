@@ -487,25 +487,22 @@ button, input, optgroup, select, textarea {
   }
 
   .navbar {
-    background-color: #E7C8D7; /* Dark background color */
-    padding: 1rem; /* Padding around the navbar */
+    background-color: #E7C8D7; 
+    padding: 1rem;
   }
   
   .navbar-brand {
-    font-family: JetBrains Mono; /* Brand font */
-    color: #0C1B32; /* Brand text color */
-    font-size: 2rem; /* Brand text size */
+    font-family: JetBrains Mono; 
+    color: #0C1B32; 
+    font-size: 2rem; 
   }
   
   .navbar-nav .nav-link {
     font-family: Inter regular;
-    color: #0C1B32; /* Link text color */
-    margin-right: 1rem; /* Space between links */
+    color: #0C1B32;
+    margin-right: 1rem; 
   }
-  
-  .navbar-nav .nav-link:hover {
-    color: #0C1B32; /* Link text color on hover */
-  }
+
 
 
 .text-pink {
@@ -514,6 +511,7 @@ button, input, optgroup, select, textarea {
 .bg-pink {
     background-color: #C68BB7 !important;
 }
+
 .event-card {
   border: none;
   border-radius: 15px;
@@ -563,7 +561,7 @@ line-height: 1;
 }
 
 
-/* Base styling for the dropdown */
+
 .nav-item.dropdown {
   position: relative;
 }
@@ -580,7 +578,7 @@ line-height: 1;
   margin-left: 0.3rem;
 }
 
-/* Dropdown menu appearance */
+
 .dropdown-menu {
   position: absolute;
   top: 100%;
@@ -591,21 +589,21 @@ line-height: 1;
   padding: 0.5rem 0;
   margin: 0;
   background-color: #E7C8D7 !important; 
-  transition: all 0.3s ease; /* Smooth transition */
+  transition: all 0.3s ease; 
   opacity: 0;
   transform: translateY(-10px);
 }
 
-/* Dropdown item hover effect */
+
 .dropdown-item {
   padding: 0.5rem 1rem;
-  color: #0C1B32; /* Customize text color */
+  color: #0C1B32; 
   text-decoration: none;
 }
 
 .dropdown-item:hover {
-  background-color: #E7C8D7; /* Highlight color */
-  color: #ffffff; /* Hover text color */
+  background-color: #E7C8D7; 
+  color: #ffffff; 
 }
 
 /* Divider styling */
@@ -651,6 +649,7 @@ body {
   font-size: 40rem;
   font-weight: 1;
   margin-bottom: 150px;
+  margin-left: 200px;
 }
 
 .tagline h1 {
@@ -710,6 +709,11 @@ body {
   font-family: Inter_bold;
   font-size: 16px;
   cursor: pointer;  
+  margin-top: 10px;
+}
+
+.login-button:hover {
+  background-color: #E7C8D7;
 }
 
 .forgot-password {
@@ -729,4 +733,111 @@ body {
   text-align: center;
   margin: 0 auto;
   margin-top: 100px;
+}
+
+.label {
+  font-family: Inter_bold;
+  font-size: 16px;
+  color: #fff !important;
+  text-align: left;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  font-family: Inter regular;
+  font-size: large !important;
+  color: #E7C8D7;
+  text-align: center;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 50px;
+  background-color: #fff;
+  text-align: center;
+  color: #1a1a2e;
+  font-size: 16px;
+}
+
+.modified-table { 
+  border-collapse: collapse; 
+  width: 100%;
+  font-family: Inter regular;
+  font-size: 16px;
+  text-align: justify;
+  border-radius: 25px;
+  overflow: hidden;
+}
+
+.modified-table th {
+  background-color: #C68BB7 !important; 
+  color: #0C1B32 !important; 
+  font-family: Inter_bold;
+  font-size: 16px;
+  text-align: center;
+}
+
+.modified-table tr {
+  background-color: #E7C8D7 !important; 
+  color: #0C1B32 !important; 
+  font-family: Inter_bold;
+  font-size: 16px;
+  text-align: center;
+}
+
+.modified-table td {
+  background-color: #E7C8D7 !important; 
+  color: #0C1B32 !important; 
+  font-family: Inter_bold;
+  font-size: 16px;
+  text-align: center;
+}
+
+.modified-table th, td {
+  border: 1px solid #E7C8D7;
+  padding: 8px;
+}
+
+h2 {
+  font-family: Inter_bold !important;
+  font-size: 2rem;
+  color: #C68BB7 !important;
+  text-align: center;
+}
+
+h1 {
+  font-family: Inter_bold;
+  font-size: 3rem;
+  color: #C68BB7 !important;
+  text-align: center;
+}
+
+p {
+  font-family: Inter regular;
+  font-size: 1.2rem;
+  color: #C68BB7;
+  text-align: center;
+}
+
+.form-label {
+  font-family: Inter_bold;
+  font-size: 1.5rem;
+  color: #C68BB7 !important;
+  text-align: center;
+}
+
+h4 {
+  font-family: Inter_bold !important;
+  font-size: 1.5rem;
+  color: #C68BB7 !important;
+  text-align: center;
+}
+
+h3 {
+  font-family: Inter_bold;
+  font-size: 2rem;
+  color: #C68BB7 !important;
+  text-align: center;
 }
