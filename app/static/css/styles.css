@@ -665,3 +665,68 @@ body {
   margin: 5px 0 0;
 }
 
+.login-container {
+  background-color: #E7C8D7;
+  width: 350px;
+  height: 500px;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px #000000;
+  text-align: center;
+  margin: 0 auto;
+  margin-top: 100px;
+}
+
+.logo {
+ width: 200px;
+}
+
+.input-container {
+  margin-bottom: 15px;
+}
+
+.input-field {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 25px;
+  background-color: #fff;
+  text-align: center;
+  color: #1a1a2e;
+  font-size: 16px;
+}
+
+.input-field::placeholder {
+  color: #ccc;
+}
+
+.login-button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 25px;
+  background-color: #C68BB7;
+  color: #000;
+  font-family: Inter_bold;
+  font-size: 16px;
+  cursor: pointer;  
+}
+
+.forgot-password {
+  margin-top: 10px;
+  color: #1a1a2e;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.signup-container {
+  background-color: #E7C8D7;
+  width: 350px;
+  height: 650px;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px #000000;
+  text-align: center;
+  margin: 0 auto;
+  margin-top: 100px;
+}
