@@ -41,15 +41,15 @@
                 {% if event.cover_photo %}
                 <img src="{{ url_for('static', filename=event.cover_photo) }}" class="card-img-top" alt="Event Cover Photo">
                 {% else %}
-                <img src="static\images\default.png" class="card-img-top" alt="Default ">
+                <img src="/static/images/default.png" class="card-img-top" alt="Default ">
                 {% endif %}
                 
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <h5 class="card-title">{{ event.name }}</h5>
                         <div class="text-end">
-                            <p class="mb-0">{{ event.start_date.strftime("%b %d") }}</p>
-                            <p class="mb-0">{{ event.end_date.strftime("%b %d") }}</p>
+                            <p style="color: #0C1B32; font-family: Inter_bold;"  class="mb-0">{{ event.start_date.strftime("%b %d") }}</p>
+                            <p style= "color: #0C1B32; font-family: Inter_bold;"="mb-0">{{ event.end_date.strftime("%b %d") }}</p>
                         </div>
                     </div>
                     <span class="badge">{{ event.status }}</span>
@@ -67,7 +67,7 @@ function searchEvents() {
   var filter = input.value.toUpperCase();
   var cards = document.getElementsByClassName("event-card");
   for (var i = 0; i < cards.length; i++) {
-    var header = cards[i].querySelector(".card-header");
+    var header = cards[i].querySelector(".card-title");
     var txtValue = header ? (header.textContent || header.innerText) : "";
     cards[i].style.display = (txtValue.toUpperCase().indexOf(filter) > -1) ? "" : "none";
   }
