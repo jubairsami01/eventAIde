@@ -2,34 +2,38 @@
 {% block title %}eventAIde{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="input-group my-3">
-        <span class="input-group-text" id="searchIcon">🔍</span>
-        <input type="text" class="form-control" id="searchInput" placeholder="Search events..." onkeyup="searchEvents()" aria-label="Search events" aria-describedby="searchIcon">
+<div class="container-fluid text-light p-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="text-pink">Ongoing Events</h1>
+        <div class="input-group" style="width: 300px;">
+            <span class="input-group-text bg-light border-0">🔍</span>
+            <input type="text" class="form-control bg-light border-0" placeholder="Search" id="searchInput" onkeyup="searchEvents()">
+        </div>
     </div>
-    {% for event in published_events %}
 
-    <a href="{{ url_for('customer.view_event_details', event_id=event.event_id) }}" class="text-decoration-none">
-        <div class="card mt-3 event-card">
-            <div class="card-header">
-                {{ event.name }}
-            </div>
-            <div class="card-body">
+    <div class="row">
+        {% for event in published_events %}
+        <a href="{{ url_for('customer.view_event_details', event_id=event.event_id) }}" class="col-12 col-sm-6 col-md-4 mb-4 text-decoration-none">
+        <div>
+            <div class="card bg-pink text-dark event-card">
                 {% if event.cover_photo %}
                 <img src="{{ url_for('static', filename=event.cover_photo) }}" class="card-img-top" alt="Event Cover Photo">
+                {% else %}
+                <img src="static\images\default.png" class="card-img-top" alt="Default ">
                 {% endif %}
-                <h5 class="card-title">{{ event.description }}</h5>
-                <p class="card-text">Start Date: {{ event.start_date }}</p>
-                <p class="card-text">End Date: {{ event.end_date }}</p>
-                <p class="card-text">Status: {{ event.status }}</p>
-                <p class="card-text">Created At: {{ event.created_at }}</p>
-                <p class="card-text">Updated At: {{ event.updated_at }}</p>
-                <button class="btn btn-primary">View Details & Register</button>
+                
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <h5 class="card-title">{{ event.name }}</h5>
+                        <span class="badge">{{ event.status }}</span>
+                    </div>
+                    <p class="mb-0">{{ event.start_date}} - {{ event.end_date }}</p>
+                </div>
             </div>
         </div>
-    </a>
-
-    {% endfor %}
+        </a>
+        {% endfor %}
+    </div>
 </div>
 
 <script>
@@ -44,5 +48,6 @@ function searchEvents() {
   }
 }
 </script>
+
 
 {% endblock %}
