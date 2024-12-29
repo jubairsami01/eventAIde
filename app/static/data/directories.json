@@ -1,0 +1,16 @@
+{
+  "Home": "/",
+  "Hosted Events": "/",
+  "Draft New Event": "/management/draft_event",
+  "Login": "/customer/login",
+  "Register": "/customer/register",
+  "My Events": "/customer/my_events",
+  "Analytics": "/management/analytics",
+  "Registered Events": "/customer/registered_events",
+  "Add Venue": "/management/add_venue",
+  "Update Existing Venues": "/customer/update_existing_venues",
+  "My Profile": "/customer/my_profile",
+  "Contact Us": "/contact",
+  "About": "/about",
+  "Dashboard": "/management/"
+}
