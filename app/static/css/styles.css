@@ -165,6 +165,7 @@ h4.card-title {
   border-radius: 3px;
   font-weight: 100;
   color:#000000;
+  text-align: left;
 }
 
 .media>* {
@@ -328,6 +329,8 @@ button, input, optgroup, select, textarea {
   color: #48b0f7 !important;
 }
 
+/* Session items */
+
 /* The actual timeline (the vertical ruler) */
 .main-timeline-4 {
     position: relative;
@@ -484,6 +487,15 @@ button, input, optgroup, select, textarea {
 
   .text-primary-modulus {
     color: #ffffff !important;
+    text-align: left;
+  }
+
+  .text-usual-black {
+    color: #000000 !important;
+  }
+  .text-usual-black-left {
+    color: #000000 !important;
+    text-align: left;
   }
 
   .navbar {

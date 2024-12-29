@@ -43,7 +43,7 @@
                     <div class="card mb-3">
                         <div class="card-body">
                             <h5 class="card-title">{{ cohost.name }}</h5>
-                            <p class="card-text">{{ cohost.email }}</p>
+                            <p class="text-usual-black">{{ cohost.email }}</p>
                             <a href="{{ url_for('management.remove_cohost', event_id=drafted_event.event_id, email=cohost.email) }}" class="btn btn-danger">Remove Co-Host</a>
                         <script>
                             function confirmDelete(event) {
@@ -197,10 +197,10 @@
                     </div>
                     <div class="card-body">
                         <h5 class="card-title">{{ session.description }}</h5>
-                        <p class="card-text">Start Time: {{ session.start_time }}</p>
-                        <p class="card-text">End Time: {{ session.end_time }}</p>
-                        <p class="card-text">Registration Fee: {{ session.registration_fee }}</p>
-                        <p class="card-text">Capacity: {{ session.capacity }}</p>
+                        <p class="text-usual-black">Start Time: {{ session.start_time }}</p>
+                        <p class="text-usual-black">End Time: {{ session.end_time }}</p>
+                        <p class="text-usual-black">Registration Fee: {{ session.registration_fee }}</p>
+                        <p class="text-usual-black">Capacity: {{ session.capacity }}</p>
                         <button class="btn btn-primary" onclick="toggleUpdateForm('{{ session.session_id }}')">Update Session</button>
                         <a href="{{ url_for('management.delete_session', event_id=drafted_event.event_id, session_id=session.session_id) }}" class="btn btn-danger" onclick="return confirmDeleteSession()">Delete Session</a>
                     </div>
@@ -282,6 +282,7 @@
                 </form>
 
                 <h4 class="mt-4">Event Status</h4>
+                <p>Current Status: {{ drafted_event.status }}</p>
                 <form action="{{ url_for('management.set_event_status', event_id=drafted_event.event_id, status='draft') }}" method="post" class="d-inline">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="btn btn-warning mt-2">Set as Draft</button>

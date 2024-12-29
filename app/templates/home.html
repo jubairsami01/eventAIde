@@ -25,12 +25,38 @@
 
 <div class="container-fluid text-light p-3 text-center">
     <h1 class="text-pink mb-4">Hosted Events</h1>
-    <div class="d-flex justify-content-end">
+    <div class="d-flex justify-content-between">
         <div class="input-group" style="width: 300px;">
-            <span class="input-group-text bg-light border-0"><img src="/static/images/search.svg" alt="Logo" width="30" height="30" class="d-inline-block align-text-top"></span>
+            <span class="input-group-text bg-light border-0"><img src="/static/images/filter.svg" alt="Filter" width="30" height="30" class="d-inline-block align-text-top" onclick="toggleFilter()"></span>
+        </div>
+        <div class="input-group" style="width: 300px;">
+            <span class="input-group-text bg-light border-0"><img src="/static/images/search.svg" alt="Search" width="30" height="30" class="d-inline-block align-text-top"></span>
             <input type="text" class="form-control bg-light border-0" placeholder="Search" id="searchInput" onkeyup="searchEvents()">
         </div>
     </div>
+</div>
+
+<div id="filterOptions" class="container-fluid text-light p-3 text-center" style="display: none;">
+    <div class="row">
+        <div class="col-md-4">
+            <label for="startDate">Start Date:</label>
+            <input type="date" id="startDate" class="form-control">
+        </div>
+        <div class="col-md-4">
+            <label for="endDate">End Date:</label>
+            <input type="date" id="endDate" class="form-control">
+        </div>
+        <div class="col-md-4">
+            <label for="status">Status:</label>
+            <select id="status" class="form-control">
+                <option value="">All</option>
+                <option value="draft">draft</option>
+                <option value="ongoing">ongoing</option>
+                <option value="completed">completed</option>
+            </select>
+        </div>
+    </div>
+    <button class="btn btn-primary mt-3" onclick="filterEvents()">Apply Filters</button>
 </div>
 
     <div class="row">
@@ -48,8 +74,8 @@
                     <div class="d-flex justify-content-between">
                         <h5 class="card-title">{{ event.name }}</h5>
                         <div class="text-end">
-                            <p style="color: #0C1B32; font-family: Inter_bold;"  class="mb-0">{{ event.start_date.strftime("%b %d") }}</p>
-                            <p style= "color: #0C1B32; font-family: Inter_bold;"="mb-0">{{ event.end_date.strftime("%b %d") }}</p>
+                            <p style="color: #0C1B32; font-family: Inter_bold;"  class="startDate">{{ event.start_date.strftime("%b %d") }}</p>
+                            <p style= "color: #0C1B32; font-family: Inter_bold;" class="endDate">{{ event.end_date.strftime("%b %d") }}</p>
                         </div>
                     </div>
                     <span class="badge">{{ event.status }}</span>
@@ -62,15 +88,51 @@
 </div>
 
 <script>
+function toggleFilter() {
+    var filterOptions = document.getElementById("filterOptions");
+    filterOptions.style.display = (filterOptions.style.display === "none") ? "block" : "none";
+}
+
 function searchEvents() {
-  var input = document.getElementById("searchInput");
-  var filter = input.value.toUpperCase();
-  var cards = document.getElementsByClassName("event-card");
-  for (var i = 0; i < cards.length; i++) {
-    var header = cards[i].querySelector(".card-title");
-    var txtValue = header ? (header.textContent || header.innerText) : "";
-    cards[i].style.display = (txtValue.toUpperCase().indexOf(filter) > -1) ? "" : "none";
-  }
+    var input = document.getElementById("searchInput");
+    var filter = input.value.toUpperCase();
+    var cards = document.getElementsByClassName("event-card");
+    for (var i = 0; i < cards.length; i++) {
+        var header = cards[i].querySelector(".card-title");
+        var txtValue = header ? (header.textContent || header.innerText) : "";
+        cards[i].style.display = (txtValue.toUpperCase().indexOf(filter) > -1) ? "" : "none";
+    }
+}
+
+function filterEvents() {
+    var startDate = document.getElementById("startDate").value;
+    var endDate = document.getElementById("endDate").value;
+    var status = document.getElementById("status").value;
+    var cards = document.getElementsByClassName("event-card");
+
+    for (var i = 0; i < cards.length; i++) {
+        var card = cards[i];
+        var startDateText = card.querySelector(".startDate").textContent;
+        var endDateText = card.querySelector(".endDate").textContent;
+        var eventStatus = card.querySelector(".badge").textContent;
+
+        var eventStartDate = new Date(Date.parse(startDateText + " " + new Date().getFullYear()));
+        var eventEndDate = new Date(Date.parse(endDateText + " " + new Date().getFullYear()));
+
+        var display = true;
+
+        if (startDate && eventStartDate < new Date(startDate)) {
+            display = false;
+        }
+        if (endDate && eventEndDate > new Date(endDate)) {
+            display = false;
+        }
+        if (status && eventStatus !== status) {
+            display = false;
+        }
+
+        card.style.display = display ? "" : "none";
+    }
 }
 </script>
 
