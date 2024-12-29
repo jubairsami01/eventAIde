@@ -33,8 +33,8 @@ class Config:
     SESSION_TYPE = 'filesystem'
     MYSQL_CURSORCLASS = "DictCursor"
     MYSQL_PORT = 3306
-"""
 
+"""
 #to connect the remote server:
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'a_secret_key'
